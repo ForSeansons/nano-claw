@@ -1,0 +1,9 @@
+{
+  "name": "auto-2",
+  "description": "Auto-extracted recurring workflow for intent: 帮我起草一封邮件-给客户道歉项目延期-语气再正式一点-加上具体的补偿方案",
+  "sourceCount": 1,
+  "successRate": 1,
+  "intentKey": "帮我起草一封邮件-给客户道歉项目延期-语气再正式一点-加上具体的补偿方案",
+  "createdAt": "2026-04-16T15:51:26.756Z",
+  "status": "draft"
+}

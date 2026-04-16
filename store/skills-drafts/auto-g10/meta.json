@@ -1,0 +1,9 @@
+{
+  "name": "auto-g10",
+  "description": "Auto-extracted recurring workflow for intent: 帮我查一下明天上海到北京的高铁-最早几点出发-g10-的二等座",
+  "sourceCount": 1,
+  "successRate": 1,
+  "intentKey": "帮我查一下明天上海到北京的高铁-最早几点出发-g10-的二等座",
+  "createdAt": "2026-04-16T15:51:26.756Z",
+  "status": "draft"
+}

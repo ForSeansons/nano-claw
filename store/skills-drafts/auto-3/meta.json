@@ -1,0 +1,9 @@
+{
+  "name": "auto-3",
+  "description": "Auto-extracted recurring workflow for intent: 帮我推荐一部今晚看的电影-不要太烧脑的-温情的-推荐",
+  "sourceCount": 1,
+  "successRate": 1,
+  "intentKey": "帮我推荐一部今晚看的电影-不要太烧脑的-温情的-推荐",
+  "createdAt": "2026-04-16T15:51:26.756Z",
+  "status": "draft"
+}
