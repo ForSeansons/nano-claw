@@ -100,6 +100,8 @@ function detectSuccess(record: ConversationRecord): boolean {
     '完成了',
     '处理好了',
     'successfully',
+    '**result:** success',
+    'result: success',
   ];
   return positiveSignals.some((s) => joined.includes(s));
 }
