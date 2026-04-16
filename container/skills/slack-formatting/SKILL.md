@@ -1,17 +1,68 @@
 ---
 name: slack-formatting
-description: Format messages for Slack using mrkdwn syntax. Use when responding to Slack channels (folder starts with "slack_" or JID contains slack identifiers).
+description: Convert responses into Slack mrkdwn style for Slack contexts (group folder starts with slack_ or chat context is Slack).
 ---
 
 # Slack Message Formatting (mrkdwn)
 
-When responding to Slack channels, use Slack's mrkdwn syntax instead of standard Markdown.
+Use Slack mrkdwn syntax instead of standard Markdown when responding in Slack contexts.
+
+## When to Use
+
+Use this skill when:
+
+- Current chat is Slack (`slack_*` group context)
+- User asks to format/rewrite message for Slack
+- Output needs Slack-compatible markup
+
+## When NOT to Use
+
+Do NOT use this skill when:
+
+- Chat is not Slack
+- User did not request format conversion and plain response is sufficient
+- Task is system status/capabilities/web browsing
+
+## Input Signals
+
+Strong signals:
+
+- "format for Slack", "slack message", "mrkdwn"
+- Slack group folder prefix (`slack_`)
+- Need mention/channel/link formatting in Slack syntax
 
 ## How to detect Slack context
 
-Check your group folder name or workspace path:
-- Folder starts with `slack_` (e.g., `slack_engineering`, `slack_general`)
-- Or check `/workspace/group/` path for `slack_` prefix
+Check:
+
+- Group folder starts with `slack_` (e.g., `slack_engineering`)
+- Workspace/group path includes `slack_`
+
+If Slack context is unclear, ask a short clarification before converting syntax.
+
+## Procedure
+
+1. Determine whether current context is Slack.
+2. If yes, rewrite message in mrkdwn.
+3. Preserve semantics; only transform formatting.
+4. Verify links, mentions, bullets, and emphasis follow Slack rules.
+
+## Verification
+
+Before sending, verify:
+
+- Bold uses `*text*` (not `**text**`)
+- Links use `<url|text>`
+- Lists use bullets (not numbered markdown lists)
+- No markdown headers/tables/horizontal rules
+
+## Anti-patterns
+
+Avoid these mistakes:
+
+- Applying Slack syntax in non-Slack channels
+- Altering factual content while only formatting was requested
+- Mixing Markdown and mrkdwn styles
 
 ## Formatting reference
 
@@ -28,25 +79,23 @@ Check your group folder name or workspace path:
 ### Links and mentions
 
 ```
-<https://example.com|Link text>     # Named link
-<https://example.com>                # Auto-linked URL
-<@U1234567890>                       # Mention user by ID
-<#C1234567890>                       # Mention channel by ID
-<!here>                              # @here
-<!channel>                           # @channel
+<https://example.com|Link text>
+<https://example.com>
+<@U1234567890>
+<#C1234567890>
+<!here>
+<!channel>
 ```
 
 ### Lists
 
-Slack supports simple bullet lists but NOT numbered lists:
+Use bullets:
 
 ```
 • First item
 • Second item
 • Third item
 ```
-
-Use `•` (bullet character) or `- ` or `* ` for bullets.
 
 ### Block quotes
 
@@ -57,38 +106,13 @@ Use `•` (bullet character) or `- ` or `* ` for bullets.
 
 ### Emoji
 
-Use standard emoji shortcodes: `:white_check_mark:`, `:x:`, `:rocket:`, `:tada:`
+Use shortcode form: `:white_check_mark:`, `:x:`, `:rocket:`, `:tada:`
 
 ## What NOT to use
 
-- **NO** `##` headings (use `*Bold text*` for headers instead)
-- **NO** `**double asterisks**` for bold (use `*single asterisks*`)
-- **NO** `[text](url)` links (use `<url|text>` instead)
-- **NO** `1.` numbered lists (use bullets with numbers: `• 1. First`)
-- **NO** tables (use code blocks or plain text alignment)
-- **NO** `---` horizontal rules
-
-## Example message
-
-```
-*Daily Standup Summary*
-
-_March 21, 2026_
-
-• *Completed:* Fixed authentication bug in login flow
-• *In Progress:* Building new dashboard widgets
-• *Blocked:* Waiting on API access from DevOps
-
-> Next sync: Monday 10am
-
-:white_check_mark: All tests passing | <https://ci.example.com/builds/123|View Build>
-```
-
-## Quick rules
-
-1. Use `*bold*` not `**bold**`
-2. Use `<url|text>` not `[text](url)`
-3. Use `•` bullets, avoid numbered lists
-4. Use `:emoji:` shortcodes
-5. Quote blocks with `>`
-6. Skip headings — use bold text instead
+- `##` headings
+- `**double asterisks**` for bold
+- `[text](url)` links
+- `1.` markdown numbered lists
+- markdown tables
+- `---` horizontal rules
