@@ -24,6 +24,7 @@ import {
 } from '@anthropic-ai/claude-agent-sdk';
 import { fileURLToPath } from 'url';
 import { loadMemoryContextFromFs } from './memory-retrieval.js';
+import { extractSkillDraftsFromTrajectories } from './skill-extraction.js';
 
 interface ContainerInput {
   prompt: string;
@@ -126,6 +127,47 @@ function writeOutput(output: ContainerOutput): void {
 
 function log(message: string): void {
   console.error(`[agent-runner] ${message}`);
+}
+
+function maybeExtractSkillDrafts(): void {
+  const enabled = process.env.NANOCLAW_SKILL_EXTRACTION_ENABLED === '1';
+  if (!enabled) return;
+
+  try {
+    const result = extractSkillDraftsFromTrajectories({
+      conversationsDir:
+        process.env.NANOCLAW_SKILL_EXTRACTION_CONVERSATIONS_DIR ||
+        '/workspace/group/conversations',
+      draftsDir:
+        process.env.NANOCLAW_SKILL_EXTRACTION_DRAFTS_DIR ||
+        '/home/node/.claude/skills-drafts',
+      activeSkillsDir:
+        process.env.NANOCLAW_SKILL_EXTRACTION_ACTIVE_SKILLS_DIR ||
+        '/home/node/.claude/skills',
+      minOccurrences:
+        Number.parseInt(
+          process.env.NANOCLAW_SKILL_EXTRACTION_MIN_OCCURRENCES || '3',
+          10,
+        ) || 3,
+      minSuccessRate:
+        Number.parseFloat(
+          process.env.NANOCLAW_SKILL_EXTRACTION_MIN_SUCCESS_RATE || '0.7',
+        ) || 0.7,
+      maxDraftsPerRun:
+        Number.parseInt(
+          process.env.NANOCLAW_SKILL_EXTRACTION_MAX_DRAFTS || '3',
+          10,
+        ) || 3,
+    });
+
+    log(
+      `Skill extraction scanned=${result.scannedFiles} intents=${result.intentBuckets} candidates=${result.candidates} saved=${result.saved.length}`,
+    );
+  } catch (err) {
+    log(
+      `Skill extraction failed: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
 }
 
 function getSessionSummary(
@@ -611,6 +653,10 @@ async function runScript(script: string): Promise<ScriptResult | null> {
 
 async function main(): Promise<void> {
   let containerInput: ContainerInput;
+
+  // Maintenance feature: auto-extract reusable skill drafts from archived
+  // trajectories. Disabled by default and guarded by env flag.
+  maybeExtractSkillDrafts();
 
   try {
     const stdinData = await readStdin();
