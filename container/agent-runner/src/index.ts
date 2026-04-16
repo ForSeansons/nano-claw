@@ -144,6 +144,12 @@ function maybeExtractSkillDrafts(): void {
       activeSkillsDir:
         process.env.NANOCLAW_SKILL_EXTRACTION_ACTIVE_SKILLS_DIR ||
         '/home/node/.claude/skills',
+      incrementalSkillsDir:
+        process.env.NANOCLAW_SKILL_EXTRACTION_INCREMENTAL_SKILLS_DIR ||
+        '/home/node/.claude/skills-incremental',
+      incrementProposalsDir:
+        process.env.NANOCLAW_SKILL_EXTRACTION_INCREMENT_PROPOSALS_DIR ||
+        '/home/node/.claude/skills-drafts/increment-proposals',
       minOccurrences:
         Number.parseInt(
           process.env.NANOCLAW_SKILL_EXTRACTION_MIN_OCCURRENCES || '3',
@@ -158,10 +164,14 @@ function maybeExtractSkillDrafts(): void {
           process.env.NANOCLAW_SKILL_EXTRACTION_MAX_DRAFTS || '3',
           10,
         ) || 3,
+      incrementalMinMatchScore:
+        Number.parseFloat(
+          process.env.NANOCLAW_SKILL_EXTRACTION_INCREMENT_MIN_MATCH || '0.3',
+        ) || 0.3,
     });
 
     log(
-      `Skill extraction scanned=${result.scannedFiles} intents=${result.intentBuckets} candidates=${result.candidates} saved=${result.saved.length}`,
+      `Skill extraction scanned=${result.scannedFiles} intents=${result.intentBuckets} candidates=${result.candidates} saved=${result.saved.length} matched=${result.incremental.matched} proposed=${result.incremental.proposed} merged=${result.incremental.merged}`,
     );
   } catch (err) {
     log(

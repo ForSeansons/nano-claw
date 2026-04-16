@@ -9,6 +9,7 @@ import {
 export interface SkillDraftStoreOptions {
   draftsDir: string;
   activeSkillsDir: string;
+  referenceSkillDirs?: string[];
   dedupeNameThreshold?: number;
 }
 
@@ -39,14 +40,22 @@ function jaccard(a: Set<string>, b: Set<string>): number {
   return union > 0 ? inter / union : 0;
 }
 
-export function listExistingSkillNames(activeSkillsDir: string): string[] {
-  if (!fs.existsSync(activeSkillsDir)) return [];
-  const result: string[] = [];
-  for (const name of fs.readdirSync(activeSkillsDir)) {
-    const skillPath = path.join(activeSkillsDir, name, 'SKILL.md');
-    if (fs.existsSync(skillPath)) result.push(name);
+export function listExistingSkillNames(
+  activeSkillsDir: string,
+  additionalSkillDirs: string[] = [],
+): string[] {
+  const result = new Set<string>();
+  const dirs = [activeSkillsDir, ...additionalSkillDirs];
+
+  for (const dir of dirs) {
+    if (!fs.existsSync(dir)) continue;
+    for (const name of fs.readdirSync(dir)) {
+      const skillPath = path.join(dir, name, 'SKILL.md');
+      if (fs.existsSync(skillPath)) result.add(name);
+    }
   }
-  return result;
+
+  return Array.from(result);
 }
 
 export function isDuplicateName(
@@ -74,7 +83,10 @@ export function saveSkillDraft(
   }
 
   const dedupeThreshold = options.dedupeNameThreshold ?? 0.75;
-  const existing = listExistingSkillNames(options.activeSkillsDir);
+  const existing = listExistingSkillNames(
+    options.activeSkillsDir,
+    options.referenceSkillDirs,
+  );
   if (isDuplicateName(draft.name, existing, dedupeThreshold)) {
     return null;
   }

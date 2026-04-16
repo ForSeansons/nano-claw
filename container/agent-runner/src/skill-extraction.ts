@@ -6,6 +6,7 @@ import {
   SkillDraftCandidate,
 } from './skill-draft-validator.js';
 import { saveSkillDraft, SavedSkillDraft } from './skill-draft-store.js';
+import { mergeCandidatesIntoExistingSkills } from './skill-incremental-merge.js';
 
 interface ConversationRecord {
   userMessages: string[];
@@ -26,9 +27,12 @@ export interface SkillExtractionOptions {
   conversationsDir: string;
   draftsDir: string;
   activeSkillsDir: string;
+  incrementalSkillsDir: string;
+  incrementProposalsDir: string;
   minOccurrences: number;
   minSuccessRate: number;
   maxDraftsPerRun: number;
+  incrementalMinMatchScore: number;
 }
 
 export interface SkillExtractionResult {
@@ -36,15 +40,23 @@ export interface SkillExtractionResult {
   intentBuckets: number;
   candidates: number;
   saved: SavedSkillDraft[];
+  incremental: {
+    matched: number;
+    proposed: number;
+    merged: number;
+  };
 }
 
 const DEFAULT_OPTIONS: SkillExtractionOptions = {
   conversationsDir: '/workspace/group/conversations',
   draftsDir: '/home/node/.claude/skills-drafts',
   activeSkillsDir: '/home/node/.claude/skills',
+  incrementalSkillsDir: '/home/node/.claude/skills-incremental',
+  incrementProposalsDir: '/home/node/.claude/skills-drafts/increment-proposals',
   minOccurrences: 3,
   minSuccessRate: 0.7,
   maxDraftsPerRun: 3,
+  incrementalMinMatchScore: 0.3,
 };
 
 function tokenize(text: string): string[] {
@@ -166,10 +178,11 @@ function buildIntentKey(userMessages: string[], toolMentions: string[]): string 
 
 function buildSkillContent(candidate: SkillDraftCandidate): string {
   const samples = (candidate.userSamples || []).slice(0, 3).map((s) => `- ${s}`);
+  const slashName = `/${candidate.name}`;
   const procedures = [
-    '1. Confirm the request matches the intent signals.',
-    '2. Run the minimum necessary steps for this recurring task.',
-    '3. Return concise result and key evidence.',
+    '1. Confirm the request matches the intent signals below.',
+    '2. Reuse the minimal validated workflow for this recurring intent.',
+    '3. Return concise results plus key evidence when available.',
   ];
 
   return `---
@@ -177,7 +190,7 @@ name: ${candidate.name}
 description: ${candidate.description}
 ---
 
-# ${candidate.name}
+# ${slashName} - Auto Extracted Skill
 
 ## When to Use
 
@@ -192,7 +205,8 @@ ${samples.length > 0 ? samples.join('\n') : '- Use for recurring requests matchi
 ## Input Signals
 
 - intent key: ${candidate.intentKey}
-- frequent patterns from trajectory with source count: ${candidate.sourceCount}
+- recurring trajectory count: ${candidate.sourceCount}
+- historical success rate: ${candidate.successRate.toFixed(2)}
 
 ## Procedure
 
@@ -213,7 +227,7 @@ ${procedures.join('\n')}
 }
 
 function draftDescriptionFromIntent(intentKey: string): string {
-  return `Auto-extracted recurring workflow for intent: ${intentKey}`;
+  return `Auto-extracted recurring workflow for intent ${intentKey}. Use when user requests match this recurring pattern.`;
 }
 
 function chooseDraftName(intent: IntentStats): string {
@@ -341,11 +355,27 @@ export function extractSkillDraftsFromTrajectories(
     candidates.slice(0, config.maxDraftsPerRun),
   );
 
+  let incrementalResult = {
+    matched: 0,
+    proposed: 0,
+    merged: 0,
+  };
+
+  if (uniqueCandidates.length > 0) {
+    incrementalResult = mergeCandidatesIntoExistingSkills(uniqueCandidates, {
+      activeSkillsDir: config.activeSkillsDir,
+      incrementalSkillsDir: config.incrementalSkillsDir,
+      proposalsDir: config.incrementProposalsDir,
+      minMatchScore: config.incrementalMinMatchScore,
+    });
+  }
+
   const saved: SavedSkillDraft[] = [];
   for (const candidate of uniqueCandidates) {
     const savedDraft = saveSkillDraft(candidate, {
       draftsDir: config.draftsDir,
       activeSkillsDir: config.activeSkillsDir,
+      referenceSkillDirs: [config.incrementalSkillsDir],
     });
     if (savedDraft) saved.push(savedDraft);
   }
@@ -355,5 +385,6 @@ export function extractSkillDraftsFromTrajectories(
     intentBuckets: intents.size,
     candidates: candidates.length,
     saved,
+    incremental: incrementalResult,
   };
 }

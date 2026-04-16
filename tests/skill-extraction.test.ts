@@ -13,6 +13,7 @@ import {
   saveSkillDraft,
 } from '../container/agent-runner/src/skill-draft-store.js';
 import { extractSkillDraftsFromTrajectories } from '../container/agent-runner/src/skill-extraction.js';
+import { matchExistingSkill } from '../container/agent-runner/src/skill-incremental-merge.js';
 
 function tempDir(prefix: string): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -24,7 +25,7 @@ name: ${name}
 description: ${description}
 ---
 
-# ${name}
+# /${name} - Test Skill
 
 ## When to Use
 - use for recurring requests
@@ -151,11 +152,65 @@ describe('skill extraction pipeline', () => {
     expect(content).toContain('## When to Use');
     expect(content).toContain('## Procedure');
     expect(content).toContain('## Verification');
+    expect(content).toContain('# /');
   });
 
   it('sanitizes generated skill names', () => {
     expect(sanitizeSkillName('Auto Skill: Status Health!!')).toBe(
       'auto-skill-status-health',
     );
+  });
+
+  it('considers active and incremental skills for matching and never mutates source skills', () => {
+    const base = tempDir('nanoclaw-extract-match-');
+    const activeSkillsDir = path.join(base, 'skills');
+    const incrementalSkillsDir = path.join(base, 'skills-incremental');
+    dirs.push(base);
+
+    fs.mkdirSync(path.join(activeSkillsDir, 'status'), { recursive: true });
+    fs.mkdirSync(path.join(incrementalSkillsDir, 'health-status'), {
+      recursive: true,
+    });
+
+    const activeSkillPath = path.join(activeSkillsDir, 'status', 'SKILL.md');
+    const incrementalSkillPath = path.join(
+      incrementalSkillsDir,
+      'health-status',
+      'SKILL.md',
+    );
+
+    fs.writeFileSync(activeSkillPath, buildDraftContent('status', 'runtime status'));
+    fs.writeFileSync(
+      incrementalSkillPath,
+      buildDraftContent('health-status', 'runtime health status and checks'),
+    );
+
+    const beforeActive = fs.readFileSync(activeSkillPath, 'utf-8');
+    const beforeIncremental = fs.readFileSync(incrementalSkillPath, 'utf-8');
+
+    const match = matchExistingSkill(
+      {
+        name: 'auto-health-status',
+        description:
+          'Auto-extracted recurring workflow for intent tool-status. Use when user requests match this recurring pattern.',
+        content: buildDraftContent(
+          'auto-health-status',
+          'Auto-extracted recurring workflow for intent tool-status. Use when user requests match this recurring pattern.',
+        ),
+        sourceCount: 2,
+        successRate: 1,
+        intentKey: 'tool-status',
+      },
+      activeSkillsDir,
+      incrementalSkillsDir,
+      0.1,
+    );
+    expect(match).not.toBeNull();
+    expect(match!.sourceType).toBe('incremental');
+
+    const afterActive = fs.readFileSync(activeSkillPath, 'utf-8');
+    const afterIncremental = fs.readFileSync(incrementalSkillPath, 'utf-8');
+    expect(afterActive).toBe(beforeActive);
+    expect(afterIncremental).toBe(beforeIncremental);
   });
 });

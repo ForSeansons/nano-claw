@@ -80,6 +80,17 @@ export function validateSkillDraft(
   if (!frontmatter.description) {
     errors.push('frontmatter.description is required');
   }
+  if (frontmatter.name && frontmatter.name !== draft.name) {
+    errors.push('frontmatter.name must equal draft.name');
+  }
+  if (frontmatter.description && frontmatter.description !== draft.description) {
+    errors.push('frontmatter.description must equal draft.description');
+  }
+
+  const expectedHeader = `# /${draft.name} -`;
+  if (!draft.content.includes(expectedHeader)) {
+    errors.push('h1 must start with "# /<name> -" to match container skill style');
+  }
 
   for (const section of REQUIRED_SECTIONS) {
     if (!draft.content.includes(section)) {
