@@ -5,6 +5,7 @@
 import './feishu.js';
 
 // discord
+import './discord.js';
 
 // gmail
 
