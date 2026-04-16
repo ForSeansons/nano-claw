@@ -59,12 +59,14 @@ const DEFAULT_OPTIONS: SkillExtractionOptions = {
   incrementalMinMatchScore: 0.3,
 };
 
+const HARD_MIN_OCCURRENCES = 3;
+
 function tokenize(text: string): string[] {
   return text
     .toLowerCase()
     .split(/[^a-z0-9\u4e00-\u9fa5_-]+/u)
     .map((t) => t.trim())
-    .filter((t) => t.length >= 2)
+    .filter((t) => t.length >= 2 && t.length <= 20)
     .filter(
       (t) =>
         ![
@@ -79,6 +81,10 @@ function tokenize(text: string): string[] {
           '帮我',
           '一下',
           '可以',
+          '今天',
+          '现在',
+          '好的',
+          '一下子',
         ].includes(t),
     );
 }
@@ -146,7 +152,32 @@ function parseConversationMarkdown(content: string): ConversationRecord {
   return { userMessages, assistantMessages, toolMentions };
 }
 
+// Domain keywords for semantic intent classification.
+// Maps a canonical intent label to its trigger tokens.
+const INTENT_DOMAINS: Array<{ label: string; tokens: string[] }> = [
+  { label: 'reminder-schedule', tokens: ['提醒', '闹钟', 'remind', 'alarm', '设置提醒', '提醒我'] },
+  { label: 'todo-planning', tokens: ['待办', '计划', '任务', 'todo', 'plan', '今天要做', '安排'] },
+  { label: 'travel-transport', tokens: ['高铁', '火车', '飞机', '出行', 'train', 'flight', '订票', '行程'] },
+  { label: 'food-dining', tokens: ['吃', '餐', '午饭', '晚饭', '推荐', 'food', 'lunch', 'dinner', 'restaurant'] },
+  { label: 'email-writing', tokens: ['邮件', '邮箱', 'email', 'mail', '回复', '起草', '撰写'] },
+  { label: 'document-report', tokens: ['周报', '报告', '文档', 'report', 'document', '总结', '写作'] },
+  { label: 'translation', tokens: ['翻译', 'translate', 'translation', '中文', '英文'] },
+  { label: 'learning-study', tokens: ['学习', '教程', '课程', 'learn', 'study', '入门', '计划学'] },
+  { label: 'health-fitness', tokens: ['健身', '跑步', '运动', '睡眠', 'fitness', 'run', 'sleep', '锻炼'] },
+  { label: 'finance-expense', tokens: ['记账', '花费', '支出', '账单', 'expense', 'finance', '记录花'] },
+  { label: 'entertainment', tokens: ['电影', '音乐', '游戏', 'movie', 'music', 'game', '推荐电影'] },
+  { label: 'news-info', tokens: ['新闻', '资讯', 'news', '最新', '今日', '查一下'] },
+  { label: 'gift-shopping', tokens: ['礼物', '购物', '推荐', 'gift', 'shop', '买', '送'] },
+  { label: 'tech-dev', tokens: ['代码', '编程', 'code', 'dev', 'bug', '开发', '技术'] },
+];
+
+/**
+ * Build a semantic intent key from user messages.
+ * Uses domain keyword matching for semantic grouping instead of
+ * raw token concatenation, so similar conversations map to the same key.
+ */
 function buildIntentKey(userMessages: string[], toolMentions: string[]): string {
+  // Tool mentions are the strongest signal — use directly
   if (toolMentions.length > 0) {
     const mentionFreq = new Map<string, number>();
     for (const mention of toolMentions) {
@@ -155,25 +186,37 @@ function buildIntentKey(userMessages: string[], toolMentions: string[]): string 
     const topMention = Array.from(mentionFreq.entries()).sort(
       (a, b) => b[1] - a[1],
     )[0]?.[0];
-    if (topMention) {
-      return `tool-${topMention}`;
-    }
+    if (topMention) return `tool-${topMention}`;
   }
 
-  const joined = userMessages.slice(-3).join(' ');
+  const joined = userMessages.join(' ').toLowerCase();
+
+  // Score each domain by how many of its tokens appear in the conversation
+  const scores = INTENT_DOMAINS.map((domain) => {
+    const hits = domain.tokens.filter((t) => joined.includes(t)).length;
+    return { label: domain.label, hits };
+  }).filter((d) => d.hits > 0);
+
+  if (scores.length > 0) {
+    scores.sort((a, b) => b.hits - a.hits);
+    // Combine top-2 domains when they both score to capture compound intents
+    // e.g. "planning + travel" → "todo-planning+travel-transport"
+    const top = scores.slice(0, 2).map((d) => d.label);
+    return top.join('+');
+  }
+
+  // Fallback: top-3 non-trivial tokens from all messages (still better than raw concat)
   const tokens = tokenize(joined);
   if (tokens.length === 0) return 'general-task';
-
-  const top = new Map<string, number>();
-  for (const t of tokens) {
-    top.set(t, (top.get(t) || 0) + 1);
-  }
-
-  return Array.from(top.entries())
+  const freq = new Map<string, number>();
+  for (const t of tokens) freq.set(t, (freq.get(t) || 0) + 1);
+  const fallbackKey = Array.from(freq.entries())
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 4)
+    .slice(0, 3)
     .map(([k]) => k)
     .join('-');
+  if (!fallbackKey || fallbackKey.length > 48) return 'general-task';
+  return sanitizeSkillName(fallbackKey);
 }
 
 function buildSkillContent(candidate: SkillDraftCandidate): string {
@@ -226,8 +269,30 @@ ${procedures.join('\n')}
 `;
 }
 
+const DOMAIN_LABELS: Record<string, string> = {
+  'reminder-schedule': 'reminders and scheduling',
+  'todo-planning': 'daily task planning',
+  'travel-transport': 'travel and transport booking',
+  'food-dining': 'food and dining recommendations',
+  'email-writing': 'email drafting and replies',
+  'document-report': 'documents and reports',
+  'translation': 'translation tasks',
+  'learning-study': 'learning plans and study guidance',
+  'health-fitness': 'health, fitness and sleep',
+  'finance-expense': 'expense tracking and finance',
+  'entertainment': 'entertainment recommendations',
+  'news-info': 'news and information lookup',
+  'gift-shopping': 'gift and shopping recommendations',
+  'tech-dev': 'technical and development tasks',
+  'general-task': 'general recurring tasks',
+};
+
 function draftDescriptionFromIntent(intentKey: string): string {
-  return `Auto-extracted recurring workflow for intent ${intentKey}. Use when user requests match this recurring pattern.`;
+  const parts = intentKey.split('+');
+  const labels = parts
+    .map((p) => DOMAIN_LABELS[p] ?? p.replace(/-/g, ' '))
+    .join(' + ');
+  return `Auto-extracted recurring workflow for: ${labels}. Use when the user request matches this recurring pattern.`;
 }
 
 function chooseDraftName(intent: IntentStats): string {
@@ -236,9 +301,16 @@ function chooseDraftName(intent: IntentStats): string {
   )[0]?.[0];
 
   if (topMention) {
-    return sanitizeSkillName(`auto-${topMention}-${intent.key}`);
+    return sanitizeSkillName(`auto-${topMention}-workflow`);
   }
-  return sanitizeSkillName(`auto-${intent.key}`);
+
+  // intentKey is already semantic (e.g. "reminder-schedule+todo-planning")
+  // Strip "+" for name safety, keep it readable
+  if (intent.key === 'general-task') {
+    return 'auto-recurring-workflow';
+  }
+  const namePart = intent.key.replace(/\+/g, '-');
+  return sanitizeSkillName(`auto-${namePart}-workflow`);
 }
 
 function uniquifyNames(candidates: SkillDraftCandidate[]): SkillDraftCandidate[] {
@@ -324,11 +396,12 @@ export function extractSkillDraftsFromTrajectories(
   };
 
   const { scannedFiles, intents } = collectIntents(config.conversationsDir);
+  const minOccurrences = Math.max(config.minOccurrences, HARD_MIN_OCCURRENCES);
 
   const candidates: SkillDraftCandidate[] = [];
   for (const intent of intents.values()) {
     const successRate = intent.count > 0 ? intent.successCount / intent.count : 0;
-    if (intent.count < config.minOccurrences) continue;
+    if (intent.count < minOccurrences) continue;
     if (successRate < config.minSuccessRate) continue;
 
     const candidate: SkillDraftCandidate = {

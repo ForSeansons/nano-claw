@@ -1,9 +1,0 @@
-{
-  "name": "auto",
-  "description": "Auto-extracted recurring workflow for intent: 今天天气怎么样-适合出门跑步吗-帮我列一下今天要做的事情-好的",
-  "sourceCount": 1,
-  "successRate": 1,
-  "intentKey": "今天天气怎么样-适合出门跑步吗-帮我列一下今天要做的事情-好的",
-  "createdAt": "2026-04-16T15:51:26.755Z",
-  "status": "draft"
-}

@@ -14,7 +14,12 @@
 
 import http from 'http';
 import crypto from 'crypto';
-import { Channel, NewMessage, OnInboundMessage, OnChatMetadata } from '../types.js';
+import {
+  Channel,
+  NewMessage,
+  OnInboundMessage,
+  OnChatMetadata,
+} from '../types.js';
 import { registerChannel } from './registry.js';
 import type { ChannelOpts } from './registry.js';
 import { readEnvFile } from '../env.js';
@@ -41,7 +46,14 @@ class FeishuChannel implements Channel {
   private onMessage: OnInboundMessage;
   private onChatMetadata: OnChatMetadata;
 
-  constructor(opts: ChannelOpts, appId: string, appSecret: string, verifyToken: string, encryptKey: string, port: number) {
+  constructor(
+    opts: ChannelOpts,
+    appId: string,
+    appSecret: string,
+    verifyToken: string,
+    encryptKey: string,
+    port: number,
+  ) {
     this.appId = appId;
     this.appSecret = appSecret;
     this.verifyToken = verifyToken;
@@ -63,7 +75,9 @@ class FeishuChannel implements Channel {
       }
 
       let body = '';
-      req.on('data', (chunk) => { body += chunk; });
+      req.on('data', (chunk) => {
+        body += chunk;
+      });
       req.on('end', () => {
         try {
           this.handleWebhook(body, res);
@@ -128,7 +142,9 @@ class FeishuChannel implements Channel {
     res.end();
 
     // Process event asynchronously
-    this.processEvent(payload).catch((e) => console.error('[feishu] event error:', e));
+    this.processEvent(payload).catch((e) =>
+      console.error('[feishu] event error:', e),
+    );
   }
 
   private async processEvent(payload: Record<string, unknown>): Promise<void> {
@@ -150,8 +166,10 @@ class FeishuChannel implements Channel {
     const msgId = message.message_id as string;
     const createTime = message.create_time as string;
 
-    const senderId = (sender.sender_id as Record<string, string>)?.open_id ?? 'unknown';
-    const senderName = (sender.sender_id as Record<string, string>)?.user_id ?? senderId;
+    const senderId =
+      (sender.sender_id as Record<string, string>)?.open_id ?? 'unknown';
+    const senderName =
+      (sender.sender_id as Record<string, string>)?.user_id ?? senderId;
 
     let content = '';
     try {
@@ -164,7 +182,13 @@ class FeishuChannel implements Channel {
     const jid = `feishu:${chatId}`;
     const isGroup = chatType === 'group';
 
-    this.onChatMetadata(jid, new Date(Number(createTime)).toISOString(), undefined, 'feishu', isGroup);
+    this.onChatMetadata(
+      jid,
+      new Date(Number(createTime)).toISOString(),
+      undefined,
+      'feishu',
+      isGroup,
+    );
 
     const newMsg: NewMessage = {
       id: msgId,
@@ -190,18 +214,21 @@ class FeishuChannel implements Channel {
     }
 
     for (const chunk of chunks) {
-      const resp = await fetch(`${FEISHU_API}/im/v1/messages?receive_id_type=chat_id`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+      const resp = await fetch(
+        `${FEISHU_API}/im/v1/messages?receive_id_type=chat_id`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            receive_id: chatId,
+            msg_type: 'text',
+            content: JSON.stringify({ text: chunk }),
+          }),
         },
-        body: JSON.stringify({
-          receive_id: chatId,
-          msg_type: 'text',
-          content: JSON.stringify({ text: chunk }),
-        }),
-      });
+      );
 
       if (!resp.ok) {
         const err = await resp.text();
@@ -231,15 +258,27 @@ class FeishuChannel implements Channel {
       return this.tokenCache.token;
     }
 
-    const resp = await fetch(`${FEISHU_API}/auth/v3/tenant_access_token/internal`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ app_id: this.appId, app_secret: this.appSecret }),
-    });
+    const resp = await fetch(
+      `${FEISHU_API}/auth/v3/tenant_access_token/internal`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          app_id: this.appId,
+          app_secret: this.appSecret,
+        }),
+      },
+    );
 
-    if (!resp.ok) throw new Error(`[feishu] Failed to get access token: ${resp.status}`);
+    if (!resp.ok)
+      throw new Error(`[feishu] Failed to get access token: ${resp.status}`);
 
-    const data = await resp.json() as { tenant_access_token: string; expire: number; code: number; msg: string };
+    const data = (await resp.json()) as {
+      tenant_access_token: string;
+      expire: number;
+      code: number;
+      msg: string;
+    };
     if (data.code !== 0) throw new Error(`[feishu] Token error: ${data.msg}`);
 
     this.tokenCache = {
@@ -270,11 +309,23 @@ registerChannel('feishu', (opts) => {
   ]);
   const appId = process.env.FEISHU_APP_ID ?? env.FEISHU_APP_ID;
   const appSecret = process.env.FEISHU_APP_SECRET ?? env.FEISHU_APP_SECRET;
-  const verifyToken = process.env.FEISHU_VERIFY_TOKEN ?? env.FEISHU_VERIFY_TOKEN;
+  const verifyToken =
+    process.env.FEISHU_VERIFY_TOKEN ?? env.FEISHU_VERIFY_TOKEN;
   if (!appId || !appSecret || !verifyToken) return null;
 
-  const encryptKey = process.env.FEISHU_ENCRYPT_KEY ?? env.FEISHU_ENCRYPT_KEY ?? '';
-  const port = parseInt(process.env.FEISHU_WEBHOOK_PORT ?? env.FEISHU_WEBHOOK_PORT ?? '3535', 10);
+  const encryptKey =
+    process.env.FEISHU_ENCRYPT_KEY ?? env.FEISHU_ENCRYPT_KEY ?? '';
+  const port = parseInt(
+    process.env.FEISHU_WEBHOOK_PORT ?? env.FEISHU_WEBHOOK_PORT ?? '3535',
+    10,
+  );
 
-  return new FeishuChannel(opts, appId, appSecret, verifyToken, encryptKey, port);
+  return new FeishuChannel(
+    opts,
+    appId,
+    appSecret,
+    verifyToken,
+    encryptKey,
+    port,
+  );
 });

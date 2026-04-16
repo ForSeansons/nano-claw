@@ -45,6 +45,7 @@
 1. 从对话中提取 user/assistant 语句与 skill 关键词。
 2. 按意图词聚类（词法方式，轻量实现）。
 3. 仅保留“出现次数 >= 阈值 且 成功率 >= 阈值”的候选。
+   - 质量下限：最小复现次数有硬门槛（`>=3`），即使外部传更小值也不会产出低复现草稿。
 4. 自动生成与现有 Claude Code skill 一致的标准结构草稿（`SKILL.md`）：
    - frontmatter: `name`、`description`
    - 标题格式：`# /<skill-name> - <title>`
@@ -59,6 +60,7 @@
    - 原有 active skills：`/home/node/.claude/skills`
    - 独立增量 skills：`/home/node/.claude/skills-incremental`
 6. 输出仅写入草稿/提案目录，不会自动修改原有 active skills。
+7. 命名与意图键以语义归纳为主，避免产出 `auto`、`auto-2` 这类低信息量名称。
 
 ## 好处与价值
 

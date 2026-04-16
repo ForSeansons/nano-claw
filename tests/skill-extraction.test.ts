@@ -155,6 +155,70 @@ describe('skill extraction pipeline', () => {
     expect(content).toContain('# /');
   });
 
+  it('enforces hard min occurrences >= 3 even if lower value is passed', () => {
+    const base = tempDir('nanoclaw-extract-hard-min-');
+    const conversationsDir = path.join(base, 'conversations');
+    const draftsDir = path.join(base, 'skills-drafts');
+    const activeSkillsDir = path.join(base, 'skills');
+    dirs.push(base);
+
+    fs.mkdirSync(conversationsDir, { recursive: true });
+    fs.mkdirSync(activeSkillsDir, { recursive: true });
+
+    const conv1 = `# Conversation\n\n**User**: 帮我看一下系统状态\n\n**Assistant**: Done. /status check completed successfully.`;
+    const conv2 = `# Conversation\n\n**User**: 现在状态怎么样\n\n**Assistant**: completed status check successfully.`;
+    fs.writeFileSync(path.join(conversationsDir, '2026-04-14-a.md'), conv1);
+    fs.writeFileSync(path.join(conversationsDir, '2026-04-15-b.md'), conv2);
+
+    const result = extractSkillDraftsFromTrajectories({
+      conversationsDir,
+      draftsDir,
+      activeSkillsDir,
+      minOccurrences: 1,
+      minSuccessRate: 0.5,
+      maxDraftsPerRun: 2,
+    });
+
+    expect(result.scannedFiles).toBe(2);
+    expect(result.saved.length).toBe(0);
+    expect(result.candidates).toBe(0);
+  });
+
+  it('generates semantic draft names instead of generic auto/auto-2 naming', () => {
+    const base = tempDir('nanoclaw-extract-sem-name-');
+    const conversationsDir = path.join(base, 'conversations');
+    const draftsDir = path.join(base, 'skills-drafts');
+    const activeSkillsDir = path.join(base, 'skills');
+    dirs.push(base);
+
+    fs.mkdirSync(conversationsDir, { recursive: true });
+    fs.mkdirSync(activeSkillsDir, { recursive: true });
+
+    const conv1 = `# Conversation\n\n**User**: 帮我起草一封给客户的邮件，说明延期并致歉\n\n**Assistant**: Done. email draft completed successfully.`;
+    const conv2 = `# Conversation\n\n**User**: 写一封正式邮件给客户解释延期原因\n\n**Assistant**: completed the email reply successfully.`;
+    const conv3 = `# Conversation\n\n**User**: 再给我一版正式一点的延期道歉邮件\n\n**Assistant**: email draft completed successfully.`;
+
+    fs.writeFileSync(path.join(conversationsDir, '2026-04-10-a.md'), conv1);
+    fs.writeFileSync(path.join(conversationsDir, '2026-04-11-b.md'), conv2);
+    fs.writeFileSync(path.join(conversationsDir, '2026-04-12-c.md'), conv3);
+
+    const result = extractSkillDraftsFromTrajectories({
+      conversationsDir,
+      draftsDir,
+      activeSkillsDir,
+      minOccurrences: 3,
+      minSuccessRate: 0.5,
+      maxDraftsPerRun: 2,
+    });
+
+    expect(result.saved.length).toBeGreaterThan(0);
+    const savedName = result.saved[0].name;
+    expect(savedName.startsWith('auto-')).toBe(true);
+    expect(savedName).not.toBe('auto');
+    expect(savedName).not.toBe('auto-2');
+    expect(savedName).toContain('workflow');
+  });
+
   it('sanitizes generated skill names', () => {
     expect(sanitizeSkillName('Auto Skill: Status Health!!')).toBe(
       'auto-skill-status-health',
