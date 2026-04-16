@@ -23,6 +23,7 @@ import {
   PreCompactHookInput,
 } from '@anthropic-ai/claude-agent-sdk';
 import { fileURLToPath } from 'url';
+import { loadMemoryContextFromFs } from './memory-retrieval.js';
 
 interface ContainerInput {
   prompt: string;
@@ -412,11 +413,19 @@ async function runQuery(
   let messageCount = 0;
   let resultCount = 0;
 
-  // Load global CLAUDE.md as additional system context (shared across all groups)
-  const globalClaudeMdPath = '/workspace/global/CLAUDE.md';
-  let globalClaudeMd: string | undefined;
-  if (!containerInput.isMain && fs.existsSync(globalClaudeMdPath)) {
-    globalClaudeMd = fs.readFileSync(globalClaudeMdPath, 'utf-8');
+  // Build layered memory context (semantic + episodic) instead of always
+  // appending full global memory. Keeps prompt size bounded for long-lived groups.
+  const memoryContext = loadMemoryContextFromFs({
+    prompt,
+    isMain: containerInput.isMain,
+    globalClaudeMdPath: '/workspace/global/CLAUDE.md',
+    episodicDir: '/workspace/group/conversations',
+    env: process.env,
+  });
+  if (memoryContext) {
+    log(
+      `Memory context mode=${memoryContext.diagnostics.mode} semantic=${memoryContext.diagnostics.semanticCount} episodic=${memoryContext.diagnostics.episodicCount} globalChars=${memoryContext.diagnostics.globalChars}`,
+    );
   }
 
   // Discover additional directories mounted at /workspace/extra/*
@@ -442,11 +451,11 @@ async function runQuery(
       additionalDirectories: extraDirs.length > 0 ? extraDirs : undefined,
       resume: sessionId,
       resumeSessionAt: resumeAt,
-      systemPrompt: globalClaudeMd
+      systemPrompt: memoryContext
         ? {
             type: 'preset' as const,
             preset: 'claude_code' as const,
-            append: globalClaudeMd,
+            append: memoryContext.append,
           }
         : undefined,
       allowedTools: [
