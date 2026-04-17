@@ -1,0 +1,426 @@
+{
+  "aggregate": {
+    "timestamp": "2026-04-17T03:50:27.161Z",
+    "scenario": "memory-skill-no-key-check",
+    "objectiveMetrics": {
+      "buildPassed": false,
+      "testsPassed": false,
+      "retrievalTestsPassed": false,
+      "skillTestsPassed": false,
+      "totalTests": 0,
+      "passedTests": 0,
+      "memoryFilesChanged": 1,
+      "skillFilesChanged": 0,
+      "runnerFilesChanged": 0,
+      "docsFilesChanged": 1,
+      "netAdditions": 1962,
+      "netDeletions": 0,
+      "harnessImpactScore": 2.7,
+      "securityFlags": {
+        "dangerousPermissionBypass": false,
+        "newShellExecSurface": false,
+        "newNetworkCallSurface": false
+      }
+    },
+    "judges": [
+      {
+        "judgeId": "judge-1",
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "cotSummary": "外部模型不可用，使用 fallback 评分。原因：OPENAI_API_KEY/OPENROUTER_API_KEY missing for non-anthropic judge",
+        "finalJustification": "该评审为降级模式，仅用于保证流程可运行，不应作为最终发布决策唯一依据。",
+        "overallScore": 6,
+        "risks": [
+          "LLM 评审不可用导致主观判断可信度下降。"
+        ],
+        "recommendations": [
+          "设置可用 API Key（OPENAI_API_KEY/OPENROUTER_API_KEY 或 ANTHROPIC_API_KEY）后重跑真实评审。",
+          "必要时加 --mock-llm 先验证脚本流程，再切回真实评审。"
+        ],
+        "principleScores": [
+          {
+            "principleId": "logic-correctness",
+            "score": 6,
+            "reasons": [
+              "fallback 估计：逻辑正确性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=false, testsPassed=false",
+              "fallback reason=OPENAI_API_KEY/OPENROUTER_API_KEY missing for non-anthropic judge"
+            ]
+          },
+          {
+            "principleId": "runtime-compatibility",
+            "score": 5.82,
+            "reasons": [
+              "fallback 估计：可运行与兼容性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=false, testsPassed=false",
+              "fallback reason=OPENAI_API_KEY/OPENROUTER_API_KEY missing for non-anthropic judge"
+            ]
+          },
+          {
+            "principleId": "lightweight-impact",
+            "score": 5.64,
+            "reasons": [
+              "fallback 估计：轻量化影响 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=false, testsPassed=false",
+              "fallback reason=OPENAI_API_KEY/OPENROUTER_API_KEY missing for non-anthropic judge"
+            ]
+          },
+          {
+            "principleId": "security-safety",
+            "score": 5.46,
+            "reasons": [
+              "fallback 估计：安全性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=false, testsPassed=false",
+              "fallback reason=OPENAI_API_KEY/OPENROUTER_API_KEY missing for non-anthropic judge"
+            ]
+          },
+          {
+            "principleId": "maintainability-observability",
+            "score": 5.28,
+            "reasons": [
+              "fallback 估计：可维护与可观测性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=false, testsPassed=false",
+              "fallback reason=OPENAI_API_KEY/OPENROUTER_API_KEY missing for non-anthropic judge"
+            ]
+          }
+        ]
+      },
+      {
+        "judgeId": "judge-2",
+        "provider": "anthropic",
+        "model": "claude-3.5-haiku",
+        "cotSummary": "外部模型不可用，使用 fallback 评分。原因：HTTP 404: <!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/cda3af16020f96ba.css\" data-precedence=\"next\"/><link rel=\"stylesheet\" href=\"/_next/static/css/23565049b3597e",
+        "finalJustification": "该评审为降级模式，仅用于保证流程可运行，不应作为最终发布决策唯一依据。",
+        "overallScore": 6,
+        "risks": [
+          "LLM 评审不可用导致主观判断可信度下降。"
+        ],
+        "recommendations": [
+          "模型名可能不可用，检查 --judge-models 与网关支持列表是否匹配。",
+          "必要时加 --mock-llm 先验证脚本流程，再切回真实评审。"
+        ],
+        "principleScores": [
+          {
+            "principleId": "logic-correctness",
+            "score": 6,
+            "reasons": [
+              "fallback 估计：逻辑正确性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=false, testsPassed=false",
+              "fallback reason=HTTP 404: <!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/cda3af16020f96ba.css\" data-precedence=\"next\"/><link rel=\"stylesheet\" href=\"/_next/static/css/23565049b3597e"
+            ]
+          },
+          {
+            "principleId": "runtime-compatibility",
+            "score": 5.82,
+            "reasons": [
+              "fallback 估计：可运行与兼容性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=false, testsPassed=false",
+              "fallback reason=HTTP 404: <!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/cda3af16020f96ba.css\" data-precedence=\"next\"/><link rel=\"stylesheet\" href=\"/_next/static/css/23565049b3597e"
+            ]
+          },
+          {
+            "principleId": "lightweight-impact",
+            "score": 5.64,
+            "reasons": [
+              "fallback 估计：轻量化影响 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=false, testsPassed=false",
+              "fallback reason=HTTP 404: <!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/cda3af16020f96ba.css\" data-precedence=\"next\"/><link rel=\"stylesheet\" href=\"/_next/static/css/23565049b3597e"
+            ]
+          },
+          {
+            "principleId": "security-safety",
+            "score": 5.46,
+            "reasons": [
+              "fallback 估计：安全性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=false, testsPassed=false",
+              "fallback reason=HTTP 404: <!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/cda3af16020f96ba.css\" data-precedence=\"next\"/><link rel=\"stylesheet\" href=\"/_next/static/css/23565049b3597e"
+            ]
+          },
+          {
+            "principleId": "maintainability-observability",
+            "score": 5.28,
+            "reasons": [
+              "fallback 估计：可维护与可观测性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=false, testsPassed=false",
+              "fallback reason=HTTP 404: <!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/cda3af16020f96ba.css\" data-precedence=\"next\"/><link rel=\"stylesheet\" href=\"/_next/static/css/23565049b3597e"
+            ]
+          }
+        ]
+      },
+      {
+        "judgeId": "judge-3",
+        "provider": "google",
+        "model": "gemini-2.0-flash-lite",
+        "cotSummary": "外部模型不可用，使用 fallback 评分。原因：OPENAI_API_KEY/OPENROUTER_API_KEY missing for non-anthropic judge",
+        "finalJustification": "该评审为降级模式，仅用于保证流程可运行，不应作为最终发布决策唯一依据。",
+        "overallScore": 6,
+        "risks": [
+          "LLM 评审不可用导致主观判断可信度下降。"
+        ],
+        "recommendations": [
+          "设置可用 API Key（OPENAI_API_KEY/OPENROUTER_API_KEY 或 ANTHROPIC_API_KEY）后重跑真实评审。",
+          "必要时加 --mock-llm 先验证脚本流程，再切回真实评审。"
+        ],
+        "principleScores": [
+          {
+            "principleId": "logic-correctness",
+            "score": 6,
+            "reasons": [
+              "fallback 估计：逻辑正确性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=false, testsPassed=false",
+              "fallback reason=OPENAI_API_KEY/OPENROUTER_API_KEY missing for non-anthropic judge"
+            ]
+          },
+          {
+            "principleId": "runtime-compatibility",
+            "score": 5.82,
+            "reasons": [
+              "fallback 估计：可运行与兼容性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=false, testsPassed=false",
+              "fallback reason=OPENAI_API_KEY/OPENROUTER_API_KEY missing for non-anthropic judge"
+            ]
+          },
+          {
+            "principleId": "lightweight-impact",
+            "score": 5.64,
+            "reasons": [
+              "fallback 估计：轻量化影响 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=false, testsPassed=false",
+              "fallback reason=OPENAI_API_KEY/OPENROUTER_API_KEY missing for non-anthropic judge"
+            ]
+          },
+          {
+            "principleId": "security-safety",
+            "score": 5.46,
+            "reasons": [
+              "fallback 估计：安全性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=false, testsPassed=false",
+              "fallback reason=OPENAI_API_KEY/OPENROUTER_API_KEY missing for non-anthropic judge"
+            ]
+          },
+          {
+            "principleId": "maintainability-observability",
+            "score": 5.28,
+            "reasons": [
+              "fallback 估计：可维护与可观测性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=false, testsPassed=false",
+              "fallback reason=OPENAI_API_KEY/OPENROUTER_API_KEY missing for non-anthropic judge"
+            ]
+          }
+        ]
+      }
+    ],
+    "principles": [
+      {
+        "principleId": "logic-correctness",
+        "name": "逻辑正确性",
+        "weight": 0.28,
+        "meanScore": 6,
+        "stdevScore": 0,
+        "weightedScore": 1.68,
+        "reasons": [
+          "fallback 估计：逻辑正确性 受客观指标影响。",
+          "未成功调用外部 LLM，采用启发式评分。"
+        ],
+        "evidence": [
+          "buildPassed=false, testsPassed=false",
+          "fallback reason=OPENAI_API_KEY/OPENROUTER_API_KEY missing for non-anthropic judge",
+          "fallback reason=HTTP 404: <!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/cda3af16020f96ba.css\" data-precedence=\"next\"/><link rel=\"stylesheet\" href=\"/_next/static/css/23565049b3597e"
+        ]
+      },
+      {
+        "principleId": "runtime-compatibility",
+        "name": "可运行与兼容性",
+        "weight": 0.24,
+        "meanScore": 5.82,
+        "stdevScore": 0,
+        "weightedScore": 1.397,
+        "reasons": [
+          "fallback 估计：可运行与兼容性 受客观指标影响。",
+          "未成功调用外部 LLM，采用启发式评分。"
+        ],
+        "evidence": [
+          "buildPassed=false, testsPassed=false",
+          "fallback reason=OPENAI_API_KEY/OPENROUTER_API_KEY missing for non-anthropic judge",
+          "fallback reason=HTTP 404: <!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/cda3af16020f96ba.css\" data-precedence=\"next\"/><link rel=\"stylesheet\" href=\"/_next/static/css/23565049b3597e"
+        ]
+      },
+      {
+        "principleId": "lightweight-impact",
+        "name": "轻量化影响",
+        "weight": 0.18,
+        "meanScore": 5.64,
+        "stdevScore": 0,
+        "weightedScore": 1.015,
+        "reasons": [
+          "fallback 估计：轻量化影响 受客观指标影响。",
+          "未成功调用外部 LLM，采用启发式评分。"
+        ],
+        "evidence": [
+          "buildPassed=false, testsPassed=false",
+          "fallback reason=OPENAI_API_KEY/OPENROUTER_API_KEY missing for non-anthropic judge",
+          "fallback reason=HTTP 404: <!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/cda3af16020f96ba.css\" data-precedence=\"next\"/><link rel=\"stylesheet\" href=\"/_next/static/css/23565049b3597e"
+        ]
+      },
+      {
+        "principleId": "security-safety",
+        "name": "安全性",
+        "weight": 0.18,
+        "meanScore": 5.46,
+        "stdevScore": 0,
+        "weightedScore": 0.983,
+        "reasons": [
+          "fallback 估计：安全性 受客观指标影响。",
+          "未成功调用外部 LLM，采用启发式评分。"
+        ],
+        "evidence": [
+          "buildPassed=false, testsPassed=false",
+          "fallback reason=OPENAI_API_KEY/OPENROUTER_API_KEY missing for non-anthropic judge",
+          "fallback reason=HTTP 404: <!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/cda3af16020f96ba.css\" data-precedence=\"next\"/><link rel=\"stylesheet\" href=\"/_next/static/css/23565049b3597e"
+        ]
+      },
+      {
+        "principleId": "maintainability-observability",
+        "name": "可维护与可观测性",
+        "weight": 0.12,
+        "meanScore": 5.28,
+        "stdevScore": 0,
+        "weightedScore": 0.634,
+        "reasons": [
+          "fallback 估计：可维护与可观测性 受客观指标影响。",
+          "未成功调用外部 LLM，采用启发式评分。"
+        ],
+        "evidence": [
+          "buildPassed=false, testsPassed=false",
+          "fallback reason=OPENAI_API_KEY/OPENROUTER_API_KEY missing for non-anthropic judge",
+          "fallback reason=HTTP 404: <!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/cda3af16020f96ba.css\" data-precedence=\"next\"/><link rel=\"stylesheet\" href=\"/_next/static/css/23565049b3597e"
+        ]
+      }
+    ],
+    "objectiveAdjustment": -2.7,
+    "totalScore": 3.01,
+    "grade": "F",
+    "pass": false,
+    "cotSummary": "评估场景: memory-skill-no-key-check; 评委数: 3; 加权基础分: 5.71; 客观调整: -2.70。 关键门槛发现: [逻辑正确性] 6.00 < gate 6.50 (fail)；[可运行与兼容性] 5.82 < gate 6.00 (fail)；[安全性] 5.46 < gate 6.50 (fail)；构建未通过；测试未全部通过。 相对薄弱项: 可维护与可观测性:5.28, 安全性:5.46",
+    "finalJustification": "综合评分 3.01/10（F），存在 fail 级门槛问题，需先修复再推广。",
+    "criticalFindings": [
+      "[逻辑正确性] 6.00 < gate 6.50 (fail)",
+      "[可运行与兼容性] 5.82 < gate 6.00 (fail)",
+      "[安全性] 5.46 < gate 6.50 (fail)",
+      "构建未通过",
+      "测试未全部通过"
+    ]
+  },
+  "comparison": {
+    "totalDelta": 0,
+    "principleDeltas": [
+      {
+        "principleId": "logic-correctness",
+        "name": "逻辑正确性",
+        "delta": 0,
+        "beforeScore": 6,
+        "afterScore": 6
+      },
+      {
+        "principleId": "runtime-compatibility",
+        "name": "可运行与兼容性",
+        "delta": 0,
+        "beforeScore": 5.82,
+        "afterScore": 5.82
+      },
+      {
+        "principleId": "lightweight-impact",
+        "name": "轻量化影响",
+        "delta": 0,
+        "beforeScore": 5.64,
+        "afterScore": 5.64
+      },
+      {
+        "principleId": "security-safety",
+        "name": "安全性",
+        "delta": 0,
+        "beforeScore": 5.46,
+        "afterScore": 5.46
+      },
+      {
+        "principleId": "maintainability-observability",
+        "name": "可维护与可观测性",
+        "delta": 0,
+        "beforeScore": 5.28,
+        "afterScore": 5.28
+      }
+    ],
+    "objectiveDelta": 0,
+    "summary": "未提供 before 基线，无法计算增量。"
+  },
+  "meta": {
+    "scenario": "memory-skill-no-key-check",
+    "judgeModels": [
+      "openai/gpt-4.1-mini",
+      "anthropic/claude-3.5-haiku",
+      "google/gemini-2.0-flash-lite"
+    ],
+    "runChecks": false,
+    "mockLlm": false,
+    "requestTimeoutMs": 25000,
+    "envPresent": [
+      "OPENAI_BASE_URL",
+      "OPENROUTER_BASE_URL",
+      "ANTHROPIC_API_KEY",
+      "ANTHROPIC_BASE_URL"
+    ],
+    "objectiveLogs": [
+      "changed files: 5",
+      "net lines: +1962/-0",
+      "filtered paths: exclude reports/, dist/, node_modules/, coverage/, .git/, .swarm/",
+      "memory files changed: 1",
+      "skill files changed: 0",
+      "跳过客观检查（--skip-checks）"
+    ]
+  }
+}

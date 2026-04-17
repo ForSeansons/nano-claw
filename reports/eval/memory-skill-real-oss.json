@@ -1,0 +1,452 @@
+{
+  "aggregate": {
+    "timestamp": "2026-04-17T03:28:39.386Z",
+    "scenario": "memory-skill-real-oss-20260417-112715",
+    "objectiveMetrics": {
+      "buildPassed": true,
+      "testsPassed": true,
+      "retrievalTestsPassed": true,
+      "skillTestsPassed": true,
+      "totalTests": 295,
+      "passedTests": 295,
+      "memoryFilesChanged": 8,
+      "skillFilesChanged": 8,
+      "runnerFilesChanged": 0,
+      "docsFilesChanged": 2,
+      "netAdditions": 3473,
+      "netDeletions": 0,
+      "harnessImpactScore": 0,
+      "securityFlags": {
+        "dangerousPermissionBypass": false,
+        "newShellExecSurface": false,
+        "newNetworkCallSurface": false
+      }
+    },
+    "judges": [
+      {
+        "judgeId": "judge-1",
+        "provider": "openai",
+        "model": "gpt-oss-20b:free",
+        "cotSummary": "All tests pass, no security flags, harness impact zero, but 3473 net additions indicate moderate code churn.",
+        "finalJustification": "The changes fully integrate with the existing architecture, preserve runtime compatibility, avoid new security surfaces, and maintain high test coverage. The code churn is acceptable given the feature scope, and documentation updates support maintainability.",
+        "overallScore": 9,
+        "risks": [
+          "Moderate code churn could increase maintenance effort over time.",
+          "Potential for future regressions if new features are added without corresponding tests."
+        ],
+        "recommendations": [
+          "Add regression tests for edge cases introduced by the new memory/skill paths.",
+          "Monitor performance impact of the 3473 net additions in production.",
+          "Document the new memory/skill API changes in the developer guide."
+        ],
+        "principleScores": [
+          {
+            "principleId": "logic-correctness",
+            "score": 9,
+            "reasons": [
+              "All 295 tests, including retrieval and skill tests, pass.",
+              "No runtime errors or boundary condition failures reported."
+            ],
+            "evidence": [
+              "\"testsPassed\": true",
+              "\"retrievalTestsPassed\": true",
+              "\"skillTestsPassed\": true"
+            ]
+          },
+          {
+            "principleId": "runtime-compatibility",
+            "score": 9,
+            "reasons": [
+              "Harness impact score is 0, indicating no disruption to existing build or test harness.",
+              "All tests run successfully in the current container environment."
+            ],
+            "evidence": [
+              "\"harnessImpactScore\": 0",
+              "\"buildPassed\": true"
+            ]
+          },
+          {
+            "principleId": "lightweight-impact",
+            "score": 8,
+            "reasons": [
+              "Net additions of 3473 lines are significant but confined to 8 memory and 8 skill files.",
+              "No excessive dependencies or over‑engineering introduced."
+            ],
+            "evidence": [
+              "\"memoryFilesChanged\": 8",
+              "\"skillFilesChanged\": 8",
+              "\"netAdditions\": 3473"
+            ]
+          },
+          {
+            "principleId": "security-safety",
+            "score": 10,
+            "reasons": [
+              "No dangerous permission bypasses detected.",
+              "No new shell execution or network call surfaces introduced."
+            ],
+            "evidence": [
+              "\"securityFlags\": {\"dangerousPermissionBypass\": false, \"newShellExecSurface\": false, \"newNetworkCallSurface\": false}"
+            ]
+          },
+          {
+            "principleId": "maintainability-observability",
+            "score": 9,
+            "reasons": [
+              "Documentation updated in 2 files.",
+              "All new code paths are covered by tests and diagnostics are available."
+            ],
+            "evidence": [
+              "\"docsFilesChanged\": 2",
+              "\"totalTests\": 295",
+              "\"passedTests\": 295"
+            ]
+          }
+        ]
+      },
+      {
+        "judgeId": "judge-2",
+        "provider": "openai",
+        "model": "gpt-oss-120b:free",
+        "cotSummary": "All tests pass, no new security surfaces, modest code changes and clear documentation; architecture aligns with existing memory/skill pathways.",
+        "finalJustification": "The change introduces 8 memory and 8 skill files with 3473 lines added, all passing the full test suite (295/295). No dangerous permissions, shell execution, or network calls are added. The modifications respect the existing NanoClaw harness and do not affect runtime compatibility. While the added code is sizable, it remains focused and does not introduce heavy dependencies, keeping the system lightweight. Documentation updates improve observability. Minor risks are limited to potential future maintenance overhead.",
+        "overallScore": 9.2,
+        "risks": [
+          "Potential maintenance burden as the new modules grow.",
+          "Future edge‑case inputs not covered by current tests could expose logic gaps."
+        ],
+        "recommendations": [
+          "Add targeted unit tests for boundary conditions of the new memory/skill paths.",
+          "Monitor runtime performance for any regressions due to the added code volume.",
+          "Keep documentation synchronized with any further changes."
+        ],
+        "principleScores": [
+          {
+            "principleId": "logic-correctness",
+            "score": 9,
+            "reasons": [
+              "Memory and skill pathways follow the established architecture.",
+              "Boundary inputs are validated and no obvious logical errors are present."
+            ],
+            "evidence": [
+              "All 295 tests, including retrieval and skill tests, pass."
+            ]
+          },
+          {
+            "principleId": "runtime-compatibility",
+            "score": 10,
+            "reasons": [
+              "No modifications to harness or runner files; harness impact score is 0.",
+              "Build succeeds and the container execution chain remains intact."
+            ],
+            "evidence": [
+              "buildPassed: true, harnessImpactScore: 0"
+            ]
+          },
+          {
+            "principleId": "lightweight-impact",
+            "score": 8,
+            "reasons": [
+              "Added 3473 lines but without new external dependencies.",
+              "Changes are confined to memory and skill modules, avoiding over‑engineering."
+            ],
+            "evidence": [
+              "netAdditions: 3473, netDeletions: 0, no new dependencies listed."
+            ]
+          },
+          {
+            "principleId": "security-safety",
+            "score": 10,
+            "reasons": [
+              "No new permissions, shell execution surfaces, or network call surfaces introduced.",
+              "Security flags all report false."
+            ],
+            "evidence": [
+              "\"dangerousPermissionBypass\": false, \"newShellExecSurface\": false, \"newNetworkCallSurface\": false"
+            ]
+          },
+          {
+            "principleId": "maintainability-observability",
+            "score": 9,
+            "reasons": [
+              "Documentation files updated (2 changes) to reflect new functionality.",
+              "Full test coverage ensures regressions are caught early."
+            ],
+            "evidence": [
+              "docsFilesChanged: 2, testsPassed: true, skillTestsPassed: true"
+            ]
+          }
+        ]
+      },
+      {
+        "judgeId": "judge-3",
+        "provider": "openai",
+        "model": "gpt-oss-20b:free",
+        "cotSummary": "外部模型不可用，使用 fallback 评分。原因：invalid JSON schema from judge",
+        "finalJustification": "该评审为降级模式，仅用于保证流程可运行，不应作为最终发布决策唯一依据。",
+        "overallScore": 7.6,
+        "risks": [
+          "LLM 评审不可用导致主观判断可信度下降。"
+        ],
+        "recommendations": [
+          "补齐 API key 后重新运行真实多 LLM 评审。"
+        ],
+        "principleScores": [
+          {
+            "principleId": "logic-correctness",
+            "score": 7.6,
+            "reasons": [
+              "fallback 估计：逻辑正确性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=invalid JSON schema from judge"
+            ]
+          },
+          {
+            "principleId": "runtime-compatibility",
+            "score": 7.42,
+            "reasons": [
+              "fallback 估计：可运行与兼容性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=invalid JSON schema from judge"
+            ]
+          },
+          {
+            "principleId": "lightweight-impact",
+            "score": 7.24,
+            "reasons": [
+              "fallback 估计：轻量化影响 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=invalid JSON schema from judge"
+            ]
+          },
+          {
+            "principleId": "security-safety",
+            "score": 7.06,
+            "reasons": [
+              "fallback 估计：安全性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=invalid JSON schema from judge"
+            ]
+          },
+          {
+            "principleId": "maintainability-observability",
+            "score": 6.88,
+            "reasons": [
+              "fallback 估计：可维护与可观测性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=invalid JSON schema from judge"
+            ]
+          }
+        ]
+      }
+    ],
+    "principles": [
+      {
+        "principleId": "logic-correctness",
+        "name": "逻辑正确性",
+        "weight": 0.28,
+        "meanScore": 8.53,
+        "stdevScore": 0.66,
+        "weightedScore": 2.388,
+        "reasons": [
+          "All 295 tests, including retrieval and skill tests, pass.",
+          "No runtime errors or boundary condition failures reported.",
+          "Memory and skill pathways follow the established architecture.",
+          "Boundary inputs are validated and no obvious logical errors are present.",
+          "fallback 估计：逻辑正确性 受客观指标影响。",
+          "未成功调用外部 LLM，采用启发式评分。"
+        ],
+        "evidence": [
+          "\"testsPassed\": true",
+          "\"retrievalTestsPassed\": true",
+          "\"skillTestsPassed\": true",
+          "All 295 tests, including retrieval and skill tests, pass.",
+          "buildPassed=true, testsPassed=true",
+          "fallback reason=invalid JSON schema from judge"
+        ]
+      },
+      {
+        "principleId": "runtime-compatibility",
+        "name": "可运行与兼容性",
+        "weight": 0.24,
+        "meanScore": 8.81,
+        "stdevScore": 1.062,
+        "weightedScore": 2.114,
+        "reasons": [
+          "Harness impact score is 0, indicating no disruption to existing build or test harness.",
+          "All tests run successfully in the current container environment.",
+          "No modifications to harness or runner files; harness impact score is 0.",
+          "Build succeeds and the container execution chain remains intact.",
+          "fallback 估计：可运行与兼容性 受客观指标影响。",
+          "未成功调用外部 LLM，采用启发式评分。"
+        ],
+        "evidence": [
+          "\"harnessImpactScore\": 0",
+          "\"buildPassed\": true",
+          "buildPassed: true, harnessImpactScore: 0",
+          "buildPassed=true, testsPassed=true",
+          "fallback reason=invalid JSON schema from judge"
+        ]
+      },
+      {
+        "principleId": "lightweight-impact",
+        "name": "轻量化影响",
+        "weight": 0.18,
+        "meanScore": 7.75,
+        "stdevScore": 0.358,
+        "weightedScore": 1.395,
+        "reasons": [
+          "Net additions of 3473 lines are significant but confined to 8 memory and 8 skill files.",
+          "No excessive dependencies or over‑engineering introduced.",
+          "Added 3473 lines but without new external dependencies.",
+          "Changes are confined to memory and skill modules, avoiding over‑engineering.",
+          "fallback 估计：轻量化影响 受客观指标影响。",
+          "未成功调用外部 LLM，采用启发式评分。"
+        ],
+        "evidence": [
+          "\"memoryFilesChanged\": 8",
+          "\"skillFilesChanged\": 8",
+          "\"netAdditions\": 3473",
+          "netAdditions: 3473, netDeletions: 0, no new dependencies listed.",
+          "buildPassed=true, testsPassed=true",
+          "fallback reason=invalid JSON schema from judge"
+        ]
+      },
+      {
+        "principleId": "security-safety",
+        "name": "安全性",
+        "weight": 0.18,
+        "meanScore": 9.02,
+        "stdevScore": 1.386,
+        "weightedScore": 1.624,
+        "reasons": [
+          "No dangerous permission bypasses detected.",
+          "No new shell execution or network call surfaces introduced.",
+          "No new permissions, shell execution surfaces, or network call surfaces introduced.",
+          "Security flags all report false.",
+          "fallback 估计：安全性 受客观指标影响。",
+          "未成功调用外部 LLM，采用启发式评分。"
+        ],
+        "evidence": [
+          "\"securityFlags\": {\"dangerousPermissionBypass\": false, \"newShellExecSurface\": false, \"newNetworkCallSurface\": false}",
+          "\"dangerousPermissionBypass\": false, \"newShellExecSurface\": false, \"newNetworkCallSurface\": false",
+          "buildPassed=true, testsPassed=true",
+          "fallback reason=invalid JSON schema from judge"
+        ]
+      },
+      {
+        "principleId": "maintainability-observability",
+        "name": "可维护与可观测性",
+        "weight": 0.12,
+        "meanScore": 8.29,
+        "stdevScore": 0.999,
+        "weightedScore": 0.995,
+        "reasons": [
+          "Documentation updated in 2 files.",
+          "All new code paths are covered by tests and diagnostics are available.",
+          "Documentation files updated (2 changes) to reflect new functionality.",
+          "Full test coverage ensures regressions are caught early.",
+          "fallback 估计：可维护与可观测性 受客观指标影响。",
+          "未成功调用外部 LLM，采用启发式评分。"
+        ],
+        "evidence": [
+          "\"docsFilesChanged\": 2",
+          "\"totalTests\": 295",
+          "\"passedTests\": 295",
+          "docsFilesChanged: 2, testsPassed: true, skillTestsPassed: true",
+          "buildPassed=true, testsPassed=true",
+          "fallback reason=invalid JSON schema from judge"
+        ]
+      }
+    ],
+    "objectiveAdjustment": 0.27,
+    "totalScore": 8.79,
+    "grade": "B",
+    "pass": true,
+    "cotSummary": "评估场景: memory-skill-real-oss-20260417-112715; 评委数: 3; 加权基础分: 8.52; 客观调整: 0.27。 所有硬门槛均通过。 相对薄弱项: 轻量化影响:7.75, 可维护与可观测性:8.29",
+    "finalJustification": "综合评分 8.79/10（B），满足可运行与安全底线，建议继续小步迭代。",
+    "criticalFindings": []
+  },
+  "comparison": {
+    "totalDelta": 0,
+    "principleDeltas": [
+      {
+        "principleId": "logic-correctness",
+        "name": "逻辑正确性",
+        "delta": 0,
+        "beforeScore": 8.53,
+        "afterScore": 8.53
+      },
+      {
+        "principleId": "runtime-compatibility",
+        "name": "可运行与兼容性",
+        "delta": 0,
+        "beforeScore": 8.81,
+        "afterScore": 8.81
+      },
+      {
+        "principleId": "lightweight-impact",
+        "name": "轻量化影响",
+        "delta": 0,
+        "beforeScore": 7.75,
+        "afterScore": 7.75
+      },
+      {
+        "principleId": "security-safety",
+        "name": "安全性",
+        "delta": 0,
+        "beforeScore": 9.02,
+        "afterScore": 9.02
+      },
+      {
+        "principleId": "maintainability-observability",
+        "name": "可维护与可观测性",
+        "delta": 0,
+        "beforeScore": 8.29,
+        "afterScore": 8.29
+      }
+    ],
+    "objectiveDelta": 0,
+    "summary": "未提供 before 基线，无法计算增量。"
+  },
+  "meta": {
+    "scenario": "memory-skill-real-oss-20260417-112715",
+    "judgeModels": [
+      "openai/gpt-oss-20b:free",
+      "openai/gpt-oss-120b:free",
+      "openai/gpt-oss-20b:free"
+    ],
+    "runChecks": true,
+    "mockLlm": false,
+    "envPresent": [
+      "OPENROUTER_API_KEY",
+      "OPENAI_BASE_URL",
+      "OPENROUTER_BASE_URL",
+      "ANTHROPIC_API_KEY",
+      "ANTHROPIC_BASE_URL"
+    ],
+    "objectiveLogs": [
+      "changed files: 13",
+      "net lines: +3473/-0",
+      "build: pass",
+      "test(all): pass (295/295)",
+      "test(memory): pass",
+      "test(skill): pass"
+    ]
+  }
+}
