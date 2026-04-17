@@ -1,0 +1,409 @@
+{
+  "aggregate": {
+    "timestamp": "2026-04-17T03:38:31.736Z",
+    "scenario": "memory-skill-before-fix",
+    "objectiveMetrics": {
+      "buildPassed": true,
+      "testsPassed": true,
+      "retrievalTestsPassed": true,
+      "skillTestsPassed": true,
+      "totalTests": 295,
+      "passedTests": 295,
+      "memoryFilesChanged": 10,
+      "skillFilesChanged": 10,
+      "runnerFilesChanged": 0,
+      "docsFilesChanged": 1,
+      "netAdditions": 3936,
+      "netDeletions": 0,
+      "harnessImpactScore": 0,
+      "securityFlags": {
+        "dangerousPermissionBypass": false,
+        "newShellExecSurface": false,
+        "newNetworkCallSurface": false
+      }
+    },
+    "judges": [
+      {
+        "judgeId": "judge-1",
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "cotSummary": "外部模型不可用，使用 fallback 评分。原因：mock-llm enabled",
+        "finalJustification": "该评审为降级模式，仅用于保证流程可运行，不应作为最终发布决策唯一依据。",
+        "overallScore": 7.6,
+        "risks": [
+          "LLM 评审不可用导致主观判断可信度下降。"
+        ],
+        "recommendations": [
+          "补齐 API key 后重新运行真实多 LLM 评审。"
+        ],
+        "principleScores": [
+          {
+            "principleId": "logic-correctness",
+            "score": 7.6,
+            "reasons": [
+              "fallback 估计：逻辑正确性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=mock-llm enabled"
+            ]
+          },
+          {
+            "principleId": "runtime-compatibility",
+            "score": 7.42,
+            "reasons": [
+              "fallback 估计：可运行与兼容性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=mock-llm enabled"
+            ]
+          },
+          {
+            "principleId": "lightweight-impact",
+            "score": 7.24,
+            "reasons": [
+              "fallback 估计：轻量化影响 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=mock-llm enabled"
+            ]
+          },
+          {
+            "principleId": "security-safety",
+            "score": 7.06,
+            "reasons": [
+              "fallback 估计：安全性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=mock-llm enabled"
+            ]
+          },
+          {
+            "principleId": "maintainability-observability",
+            "score": 6.88,
+            "reasons": [
+              "fallback 估计：可维护与可观测性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=mock-llm enabled"
+            ]
+          }
+        ]
+      },
+      {
+        "judgeId": "judge-2",
+        "provider": "anthropic",
+        "model": "claude-3.5-haiku",
+        "cotSummary": "外部模型不可用，使用 fallback 评分。原因：mock-llm enabled",
+        "finalJustification": "该评审为降级模式，仅用于保证流程可运行，不应作为最终发布决策唯一依据。",
+        "overallScore": 7.6,
+        "risks": [
+          "LLM 评审不可用导致主观判断可信度下降。"
+        ],
+        "recommendations": [
+          "补齐 API key 后重新运行真实多 LLM 评审。"
+        ],
+        "principleScores": [
+          {
+            "principleId": "logic-correctness",
+            "score": 7.6,
+            "reasons": [
+              "fallback 估计：逻辑正确性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=mock-llm enabled"
+            ]
+          },
+          {
+            "principleId": "runtime-compatibility",
+            "score": 7.42,
+            "reasons": [
+              "fallback 估计：可运行与兼容性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=mock-llm enabled"
+            ]
+          },
+          {
+            "principleId": "lightweight-impact",
+            "score": 7.24,
+            "reasons": [
+              "fallback 估计：轻量化影响 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=mock-llm enabled"
+            ]
+          },
+          {
+            "principleId": "security-safety",
+            "score": 7.06,
+            "reasons": [
+              "fallback 估计：安全性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=mock-llm enabled"
+            ]
+          },
+          {
+            "principleId": "maintainability-observability",
+            "score": 6.88,
+            "reasons": [
+              "fallback 估计：可维护与可观测性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=mock-llm enabled"
+            ]
+          }
+        ]
+      },
+      {
+        "judgeId": "judge-3",
+        "provider": "google",
+        "model": "gemini-2.0-flash-lite",
+        "cotSummary": "外部模型不可用，使用 fallback 评分。原因：mock-llm enabled",
+        "finalJustification": "该评审为降级模式，仅用于保证流程可运行，不应作为最终发布决策唯一依据。",
+        "overallScore": 7.6,
+        "risks": [
+          "LLM 评审不可用导致主观判断可信度下降。"
+        ],
+        "recommendations": [
+          "补齐 API key 后重新运行真实多 LLM 评审。"
+        ],
+        "principleScores": [
+          {
+            "principleId": "logic-correctness",
+            "score": 7.6,
+            "reasons": [
+              "fallback 估计：逻辑正确性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=mock-llm enabled"
+            ]
+          },
+          {
+            "principleId": "runtime-compatibility",
+            "score": 7.42,
+            "reasons": [
+              "fallback 估计：可运行与兼容性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=mock-llm enabled"
+            ]
+          },
+          {
+            "principleId": "lightweight-impact",
+            "score": 7.24,
+            "reasons": [
+              "fallback 估计：轻量化影响 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=mock-llm enabled"
+            ]
+          },
+          {
+            "principleId": "security-safety",
+            "score": 7.06,
+            "reasons": [
+              "fallback 估计：安全性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=mock-llm enabled"
+            ]
+          },
+          {
+            "principleId": "maintainability-observability",
+            "score": 6.88,
+            "reasons": [
+              "fallback 估计：可维护与可观测性 受客观指标影响。",
+              "未成功调用外部 LLM，采用启发式评分。"
+            ],
+            "evidence": [
+              "buildPassed=true, testsPassed=true",
+              "fallback reason=mock-llm enabled"
+            ]
+          }
+        ]
+      }
+    ],
+    "principles": [
+      {
+        "principleId": "logic-correctness",
+        "name": "逻辑正确性",
+        "weight": 0.28,
+        "meanScore": 7.6,
+        "stdevScore": 0,
+        "weightedScore": 2.128,
+        "reasons": [
+          "fallback 估计：逻辑正确性 受客观指标影响。",
+          "未成功调用外部 LLM，采用启发式评分。"
+        ],
+        "evidence": [
+          "buildPassed=true, testsPassed=true",
+          "fallback reason=mock-llm enabled"
+        ]
+      },
+      {
+        "principleId": "runtime-compatibility",
+        "name": "可运行与兼容性",
+        "weight": 0.24,
+        "meanScore": 7.42,
+        "stdevScore": 0,
+        "weightedScore": 1.781,
+        "reasons": [
+          "fallback 估计：可运行与兼容性 受客观指标影响。",
+          "未成功调用外部 LLM，采用启发式评分。"
+        ],
+        "evidence": [
+          "buildPassed=true, testsPassed=true",
+          "fallback reason=mock-llm enabled"
+        ]
+      },
+      {
+        "principleId": "lightweight-impact",
+        "name": "轻量化影响",
+        "weight": 0.18,
+        "meanScore": 7.24,
+        "stdevScore": 0,
+        "weightedScore": 1.303,
+        "reasons": [
+          "fallback 估计：轻量化影响 受客观指标影响。",
+          "未成功调用外部 LLM，采用启发式评分。"
+        ],
+        "evidence": [
+          "buildPassed=true, testsPassed=true",
+          "fallback reason=mock-llm enabled"
+        ]
+      },
+      {
+        "principleId": "security-safety",
+        "name": "安全性",
+        "weight": 0.18,
+        "meanScore": 7.06,
+        "stdevScore": 0,
+        "weightedScore": 1.271,
+        "reasons": [
+          "fallback 估计：安全性 受客观指标影响。",
+          "未成功调用外部 LLM，采用启发式评分。"
+        ],
+        "evidence": [
+          "buildPassed=true, testsPassed=true",
+          "fallback reason=mock-llm enabled"
+        ]
+      },
+      {
+        "principleId": "maintainability-observability",
+        "name": "可维护与可观测性",
+        "weight": 0.12,
+        "meanScore": 6.88,
+        "stdevScore": 0,
+        "weightedScore": 0.826,
+        "reasons": [
+          "fallback 估计：可维护与可观测性 受客观指标影响。",
+          "未成功调用外部 LLM，采用启发式评分。"
+        ],
+        "evidence": [
+          "buildPassed=true, testsPassed=true",
+          "fallback reason=mock-llm enabled"
+        ]
+      }
+    ],
+    "objectiveAdjustment": 0.16,
+    "totalScore": 7.47,
+    "grade": "C",
+    "pass": true,
+    "cotSummary": "评估场景: memory-skill-before-fix; 评委数: 3; 加权基础分: 7.31; 客观调整: 0.16。 所有硬门槛均通过。 相对薄弱项: 可维护与可观测性:6.88, 安全性:7.06",
+    "finalJustification": "综合评分 7.47/10（C），满足可运行与安全底线，建议继续小步迭代。",
+    "criticalFindings": []
+  },
+  "comparison": {
+    "totalDelta": 0,
+    "principleDeltas": [
+      {
+        "principleId": "logic-correctness",
+        "name": "逻辑正确性",
+        "delta": 0,
+        "beforeScore": 7.6,
+        "afterScore": 7.6
+      },
+      {
+        "principleId": "runtime-compatibility",
+        "name": "可运行与兼容性",
+        "delta": 0,
+        "beforeScore": 7.42,
+        "afterScore": 7.42
+      },
+      {
+        "principleId": "lightweight-impact",
+        "name": "轻量化影响",
+        "delta": 0,
+        "beforeScore": 7.24,
+        "afterScore": 7.24
+      },
+      {
+        "principleId": "security-safety",
+        "name": "安全性",
+        "delta": 0,
+        "beforeScore": 7.06,
+        "afterScore": 7.06
+      },
+      {
+        "principleId": "maintainability-observability",
+        "name": "可维护与可观测性",
+        "delta": 0,
+        "beforeScore": 6.88,
+        "afterScore": 6.88
+      }
+    ],
+    "objectiveDelta": 0,
+    "summary": "未提供 before 基线，无法计算增量。"
+  },
+  "meta": {
+    "scenario": "memory-skill-before-fix",
+    "judgeModels": [
+      "openai/gpt-4.1-mini",
+      "anthropic/claude-3.5-haiku",
+      "google/gemini-2.0-flash-lite"
+    ],
+    "runChecks": true,
+    "mockLlm": true,
+    "envPresent": [
+      "OPENAI_BASE_URL",
+      "OPENROUTER_BASE_URL"
+    ],
+    "objectiveLogs": [
+      "changed files: 14",
+      "net lines: +3936/-0",
+      "build: pass",
+      "test(all): pass (295/295)",
+      "test(memory): pass",
+      "test(skill): pass"
+    ]
+  }
+}
