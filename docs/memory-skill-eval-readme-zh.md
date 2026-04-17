@@ -36,6 +36,8 @@ npm run -s eval:memory-skill -- \
   --mock-llm
 ```
 
+说明：开启 `--mock-llm` 后，产物会被自动写入 `reports/eval/mock/`，并加 `-mock` 后缀，避免与真实评估结果混淆。
+
 ### 2.2 真实评估（有 API key）
 
 ```bash
@@ -62,8 +64,8 @@ npm run -s test tests/eval-memory-skill-cases.test.ts
 
 改后报告（50 案例版本）：
 
-- `reports/eval/memory-skill-after-fix-50-cases.json`
-- `reports/eval/memory-skill-after-fix-50-cases.md`
+- `reports/eval/mock/memory-skill-after-fix-50-cases-mock.json`
+- `reports/eval/mock/memory-skill-after-fix-50-cases-mock.md`
 
 关键指标对比：
 
@@ -91,4 +93,3 @@ npm run -s test tests/eval-memory-skill-cases.test.ts
 - 修复 `PASS` 假阳性：即使原则分高，`build/test` 失败也不会通过。
 - 提升 fallback 可操作性：按失败原因给出差异化建议（key、timeout、base-url、rate-limit、auth、region、schema）。
 - 保持轻量：无新增第三方重依赖，维持 NanoClaw 小体量。
-

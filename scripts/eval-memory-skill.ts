@@ -69,6 +69,7 @@ const DIFF_EXCLUDE_PREFIXES = [
 ];
 
 const DIFF_EXCLUDE_EXACT = new Set(['.DS_Store']);
+const MOCK_REPORT_DIR = path.join('reports', 'eval', 'mock');
 
 type FallbackReasonCode =
   | 'missing-key'
@@ -168,6 +169,40 @@ function parseArgs(argv: string[]): CliArgs {
   }
 
   return defaults;
+}
+
+function appendMockSuffix(fileName: string): string {
+  const ext = path.extname(fileName);
+  const stem = ext ? fileName.slice(0, -ext.length) : fileName;
+  const finalStem = stem.endsWith('-mock') ? stem : `${stem}-mock`;
+  return `${finalStem}${ext || '.json'}`;
+}
+
+export function resolveEvalOutputPaths(args: CliArgs): {
+  outputJson: string;
+  outputMd: string;
+} {
+  if (!args.mockLlm) {
+    const outputJson = args.output;
+    const outputMd = args.reportMd || outputJson.replace(/\.json$/i, '.md');
+    return { outputJson, outputMd };
+  }
+
+  const baseName = path.basename(args.output || 'memory-skill-eval.json');
+  const mockJson = path.join(MOCK_REPORT_DIR, appendMockSuffix(baseName));
+
+  const mdInputName = args.reportMd
+    ? path.basename(args.reportMd)
+    : path.basename(mockJson.replace(/\.json$/i, '.md'));
+  const mockMd = path.join(
+    MOCK_REPORT_DIR,
+    appendMockSuffix(mdInputName).replace(/\.json$/i, '.md'),
+  );
+
+  return {
+    outputJson: mockJson,
+    outputMd: mockMd,
+  };
 }
 
 function runCmd(cmd: string, fallback = ''): string {
@@ -1151,6 +1186,7 @@ function renderMarkdownReport(input: {
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
+  const outputPaths = resolveEvalOutputPaths(args);
   const { metrics, logs } = buildObjectiveMetrics(args);
 
   const principles = DEFAULT_PRINCIPLES;
@@ -1206,20 +1242,19 @@ async function main(): Promise<void> {
     },
   };
 
-  writeEvalReport(args.output, payload);
+  writeEvalReport(outputPaths.outputJson, payload);
 
-  const reportMdPath =
-    args.reportMd || args.output.replace(/\.json$/i, '.md');
+  const reportMdPath = outputPaths.outputMd;
   const reportMd = renderMarkdownReport({
     aggregate,
     comparison,
     objectiveLogs: logs,
-    outputJsonPath: args.output,
+    outputJsonPath: outputPaths.outputJson,
   });
   writeTextReport(reportMdPath, reportMd);
 
   console.log(formatHumanSummary(aggregate));
-  console.log(`\nReport JSON: ${args.output}`);
+  console.log(`\nReport JSON: ${outputPaths.outputJson}`);
   console.log(`Report MD: ${reportMdPath}`);
 }
 

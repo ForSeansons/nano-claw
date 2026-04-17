@@ -147,6 +147,9 @@ function maybeExtractSkillDrafts(): void {
       incrementalSkillsDir:
         process.env.NANOCLAW_SKILL_EXTRACTION_INCREMENTAL_SKILLS_DIR ||
         '/home/node/.claude/skills-incremental',
+      bundledSkillsDir:
+        process.env.NANOCLAW_SKILL_EXTRACTION_BUNDLED_SKILLS_DIR ||
+        '/workspace/container/skills',
       incrementProposalsDir:
         process.env.NANOCLAW_SKILL_EXTRACTION_INCREMENT_PROPOSALS_DIR ||
         '/home/node/.claude/skills-drafts/increment-proposals',

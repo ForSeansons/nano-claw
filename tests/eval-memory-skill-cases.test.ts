@@ -6,6 +6,7 @@ import {
   isMemoryPath,
   isSkillPath,
   normalizePath,
+  resolveEvalOutputPaths,
   shouldIgnoreDiffPath,
 } from '../scripts/eval-memory-skill.js';
 
@@ -103,5 +104,41 @@ describe('eval-memory-skill helper cases', () => {
         `${c.name}-recommendation`,
       ).toBeGreaterThan(0);
     }
+  });
+
+  it('routes mock eval outputs to reports/eval/mock with -mock suffix', () => {
+    const mock = resolveEvalOutputPaths({
+      scenario: 'memory-skill-after',
+      baseline: undefined,
+      output: 'reports/eval/memory-skill-after-fix-50-cases.json',
+      reportMd: 'reports/eval/memory-skill-after-fix-50-cases.md',
+      runChecks: true,
+      mockLlm: true,
+      judgeModels: ['openai/gpt-4.1-mini'],
+      maxTokens: 1800,
+      temperature: 0.2,
+      requestTimeoutMs: 25000,
+    });
+    expect(mock.outputJson).toBe(
+      'reports/eval/mock/memory-skill-after-fix-50-cases-mock.json',
+    );
+    expect(mock.outputMd).toBe(
+      'reports/eval/mock/memory-skill-after-fix-50-cases-mock.md',
+    );
+
+    const real = resolveEvalOutputPaths({
+      scenario: 'memory-skill-after',
+      baseline: undefined,
+      output: 'reports/eval/memory-skill-real.json',
+      reportMd: undefined,
+      runChecks: true,
+      mockLlm: false,
+      judgeModels: ['openai/gpt-4.1-mini'],
+      maxTokens: 1800,
+      temperature: 0.2,
+      requestTimeoutMs: 25000,
+    });
+    expect(real.outputJson).toBe('reports/eval/memory-skill-real.json');
+    expect(real.outputMd).toBe('reports/eval/memory-skill-real.md');
   });
 });

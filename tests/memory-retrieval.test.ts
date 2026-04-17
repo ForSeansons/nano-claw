@@ -88,6 +88,41 @@ describe('memory-retrieval (non-vector)', () => {
     expect(ctx!.append).toContain('sales-retro');
   });
 
+  it('ignores invalid episodic dates in file names', () => {
+    const tmp = makeTempDir('nanoclaw-memory-invalid-date-');
+    dirs.push(tmp);
+    const globalPath = path.join(tmp, 'CLAUDE.md');
+    const episodicDir = path.join(tmp, 'conversations');
+    fs.mkdirSync(episodicDir, { recursive: true });
+
+    fs.writeFileSync(globalPath, '# Global\nNo-op\n');
+    fs.writeFileSync(
+      path.join(episodicDir, '2026-02-30-invalid.md'),
+      '关于销售复盘的旧笔记（日期非法）',
+    );
+    fs.writeFileSync(
+      path.join(episodicDir, '2026-03-01-valid.md'),
+      '关于销售复盘的有效日期笔记',
+    );
+
+    const ctx = loadMemoryContextFromFs({
+      prompt: '请回顾销售复盘内容',
+      isMain: false,
+      globalClaudeMdPath: globalPath,
+      episodicDir,
+      env: {
+        NANOCLAW_MEMORY_RETRIEVAL_ENABLED: '1',
+        NANOCLAW_MEMORY_EPISODIC_TOP_K: '1',
+      },
+      now: new Date('2026-04-16T00:00:00.000Z'),
+    });
+
+    expect(ctx).not.toBeNull();
+    expect(ctx!.append).toContain('Episodic Recall');
+    expect(ctx!.append).toContain('2026-03-01-valid.md');
+    expect(ctx!.append).not.toContain('2026-02-30-invalid.md');
+  });
+
   it('can disable retrieval via env flag', () => {
     const tmp = makeTempDir('nanoclaw-memory-');
     dirs.push(tmp);

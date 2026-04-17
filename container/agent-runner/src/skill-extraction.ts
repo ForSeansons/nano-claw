@@ -28,6 +28,7 @@ export interface SkillExtractionOptions {
   draftsDir: string;
   activeSkillsDir: string;
   incrementalSkillsDir: string;
+  bundledSkillsDir: string;
   incrementProposalsDir: string;
   minOccurrences: number;
   minSuccessRate: number;
@@ -52,6 +53,7 @@ const DEFAULT_OPTIONS: SkillExtractionOptions = {
   draftsDir: '/home/node/.claude/skills-drafts',
   activeSkillsDir: '/home/node/.claude/skills',
   incrementalSkillsDir: '/home/node/.claude/skills-incremental',
+  bundledSkillsDir: '/workspace/container/skills',
   incrementProposalsDir: '/home/node/.claude/skills-drafts/increment-proposals',
   minOccurrences: 3,
   minSuccessRate: 0.7,
@@ -93,37 +95,81 @@ function detectSuccess(record: ConversationRecord): boolean {
   const joined = record.assistantMessages.join('\n').toLowerCase();
   if (!joined.trim()) return false;
   const positiveSignals = [
-    'done',
-    'completed',
-    'success',
-    '已完成',
-    '完成了',
-    '处理好了',
-    'successfully',
-    '**result:** success',
-    'result: success',
+    /\bcompleted\b/i,
+    /\bsuccessfully\b/i,
+    /\bdone\b/i,
+    /已完成/,
+    /完成了/,
+    /处理好了/,
   ];
-  return positiveSignals.some((s) => joined.includes(s));
+  const negativeSignals = [
+    /\bfailed\b/i,
+    /\berror\b/i,
+    /\btimeout\b/i,
+    /\bexception\b/i,
+    /失败/,
+    /报错/,
+    /超时/,
+  ];
+  if (negativeSignals.some((r) => r.test(joined))) return false;
+  return positiveSignals.some((r) => r.test(joined));
 }
 
-function extractToolMentions(text: string): string[] {
-  const mentions: string[] = [];
-  const regexes = [
-    /\/(status|capabilities|agent-browser|slack-formatting|skill-index)\b/gi,
-    /\b(status|capabilities|agent-browser|slack-formatting|skill-index)\b/gi,
+function listSkillNamesFromDir(dir: string): string[] {
+  if (!dir || !fs.existsSync(dir)) return [];
+  const names = new Set<string>();
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const skillMd = path.join(dir, entry.name, 'SKILL.md');
+    if (fs.existsSync(skillMd)) {
+      names.add(entry.name.toLowerCase());
+    }
+  }
+  return Array.from(names);
+}
+
+function escapeRegex(input: string): string {
+  return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function buildToolMentionRegexes(skillNames: string[]): RegExp[] {
+  if (skillNames.length === 0) return [];
+  const pattern = skillNames
+    .filter(Boolean)
+    .map((name) => escapeRegex(name))
+    .sort((a, b) => b.length - a.length)
+    .join('|');
+  if (!pattern) return [];
+  return [
+    new RegExp(`/(?:${pattern})\\b`, 'gi'),
+    new RegExp(`\\b(?:${pattern})\\b`, 'gi'),
   ];
+}
+
+function extractToolMentions(text: string, skillNames: string[]): string[] {
+  const mentions: string[] = [];
+  const normalizedNames = skillNames.map((n) => n.toLowerCase()).filter(Boolean);
+  const valid = new Set(normalizedNames);
+  const regexes = buildToolMentionRegexes(normalizedNames);
+  if (regexes.length === 0) return mentions;
 
   for (const re of regexes) {
     for (const match of text.matchAll(re)) {
-      const value = String(match[1] || match[0]).toLowerCase();
-      if (value) mentions.push(value.replace(/^\//, ''));
+      const value = String(match[0] || '')
+        .toLowerCase()
+        .replace(/^\//, '');
+      if (value && valid.has(value)) mentions.push(value);
     }
   }
 
   return mentions;
 }
 
-function parseConversationMarkdown(content: string): ConversationRecord {
+function parseConversationMarkdown(
+  content: string,
+  availableSkillNames: string[],
+): ConversationRecord {
   const userMessages: string[] = [];
   const assistantMessages: string[] = [];
 
@@ -150,7 +196,7 @@ function parseConversationMarkdown(content: string): ConversationRecord {
     }
   }
 
-  const toolMentions = extractToolMentions(content);
+  const toolMentions = extractToolMentions(content, availableSkillNames);
   return { userMessages, assistantMessages, toolMentions };
 }
 
@@ -331,7 +377,10 @@ function uniquifyNames(candidates: SkillDraftCandidate[]): SkillDraftCandidate[]
   });
 }
 
-function collectIntents(conversationsDir: string): {
+function collectIntents(
+  conversationsDir: string,
+  availableSkillNames: string[],
+): {
   scannedFiles: number;
   intents: Map<string, IntentStats>;
 } {
@@ -354,7 +403,7 @@ function collectIntents(conversationsDir: string): {
       continue;
     }
 
-    const record = parseConversationMarkdown(content);
+    const record = parseConversationMarkdown(content, availableSkillNames);
     if (record.userMessages.length === 0) continue;
 
     const key = buildIntentKey(record.userMessages, record.toolMentions);
@@ -397,7 +446,17 @@ export function extractSkillDraftsFromTrajectories(
     ...(options || {}),
   };
 
-  const { scannedFiles, intents } = collectIntents(config.conversationsDir);
+  const availableSkillNames = Array.from(
+    new Set([
+      ...listSkillNamesFromDir(config.activeSkillsDir),
+      ...listSkillNamesFromDir(config.incrementalSkillsDir),
+      ...listSkillNamesFromDir(config.bundledSkillsDir),
+    ]),
+  );
+  const { scannedFiles, intents } = collectIntents(
+    config.conversationsDir,
+    availableSkillNames,
+  );
   const minOccurrences = Math.max(config.minOccurrences, HARD_MIN_OCCURRENCES);
 
   const candidates: SkillDraftCandidate[] = [];

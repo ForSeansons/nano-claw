@@ -268,8 +268,23 @@ function pickSemanticSections(
 function parseDateFromId(id: string): Date | undefined {
   const m = id.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (!m) return undefined;
-  const dt = new Date(`${m[1]}-${m[2]}-${m[3]}T00:00:00.000Z`);
-  return Number.isNaN(dt.getTime()) ? undefined : dt;
+  const year = Number.parseInt(m[1], 10);
+  const month = Number.parseInt(m[2], 10);
+  const day = Number.parseInt(m[3], 10);
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+    return undefined;
+  }
+  if (month < 1 || month > 12 || day < 1 || day > 31) return undefined;
+
+  const dt = new Date(Date.UTC(year, month - 1, day));
+  if (
+    dt.getUTCFullYear() !== year ||
+    dt.getUTCMonth() !== month - 1 ||
+    dt.getUTCDate() !== day
+  ) {
+    return undefined;
+  }
+  return dt;
 }
 
 function recencyBoost(date: Date | undefined, now: Date): number {

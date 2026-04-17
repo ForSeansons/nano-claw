@@ -110,6 +110,8 @@ npx tsx scripts/eval-memory-skill.ts \
   --mock-llm
 ```
 
+说明：`--mock-llm` 会自动将报告写入 `reports/eval/mock/*-mock.{json,md}`，避免与真实评估混用。
+
 ### 2) 真实多 LLM 评估
 
 ```bash
@@ -137,6 +139,11 @@ npx tsx scripts/eval-memory-skill.ts \
 
 - JSON：`reports/eval/memory-skill-eval.json`
 - Markdown：`reports/eval/memory-skill-eval.md`
+
+mock 模式输出（自动重定向）：
+
+- JSON：`reports/eval/mock/*-mock.json`
+- Markdown：`reports/eval/mock/*-mock.md`
 
 JSON 中包含：
 

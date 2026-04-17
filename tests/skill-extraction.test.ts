@@ -117,10 +117,16 @@ describe('skill extraction pipeline', () => {
     const conversationsDir = path.join(base, 'conversations');
     const draftsDir = path.join(base, 'skills-drafts');
     const activeSkillsDir = path.join(base, 'skills');
+    const bundledSkillsDir = path.join(base, 'container-skills');
     dirs.push(base);
 
     fs.mkdirSync(conversationsDir, { recursive: true });
     fs.mkdirSync(activeSkillsDir, { recursive: true });
+    fs.mkdirSync(path.join(bundledSkillsDir, 'status'), { recursive: true });
+    fs.writeFileSync(
+      path.join(bundledSkillsDir, 'status', 'SKILL.md'),
+      buildDraftContent('status', 'bundled status skill'),
+    );
 
     const conv1 = `# Conversation\n\n**User**: 请帮我检查系统状态和任务\n\n**Assistant**: Done. I checked /status and everything completed successfully.`;
     const conv2 = `# Conversation\n\n**User**: 帮我看一下当前系统状态\n\n**Assistant**: 已完成。status 检查成功，任务正常。`;
@@ -134,6 +140,7 @@ describe('skill extraction pipeline', () => {
       conversationsDir,
       draftsDir,
       activeSkillsDir,
+      bundledSkillsDir,
       minOccurrences: 2,
       minSuccessRate: 0.5,
       maxDraftsPerRun: 2,
@@ -160,10 +167,16 @@ describe('skill extraction pipeline', () => {
     const conversationsDir = path.join(base, 'conversations');
     const draftsDir = path.join(base, 'skills-drafts');
     const activeSkillsDir = path.join(base, 'skills');
+    const bundledSkillsDir = path.join(base, 'container-skills');
     dirs.push(base);
 
     fs.mkdirSync(conversationsDir, { recursive: true });
     fs.mkdirSync(activeSkillsDir, { recursive: true });
+    fs.mkdirSync(path.join(bundledSkillsDir, 'status'), { recursive: true });
+    fs.writeFileSync(
+      path.join(bundledSkillsDir, 'status', 'SKILL.md'),
+      buildDraftContent('status', 'bundled status skill'),
+    );
 
     const conv1 = `# Conversation\n\n**User**: 帮我看一下系统状态\n\n**Assistant**: Done. /status check completed successfully.`;
     const conv2 = `# Conversation\n\n**User**: 现在状态怎么样\n\n**Assistant**: completed status check successfully.`;
@@ -174,6 +187,7 @@ describe('skill extraction pipeline', () => {
       conversationsDir,
       draftsDir,
       activeSkillsDir,
+      bundledSkillsDir,
       minOccurrences: 1,
       minSuccessRate: 0.5,
       maxDraftsPerRun: 2,
@@ -189,10 +203,16 @@ describe('skill extraction pipeline', () => {
     const conversationsDir = path.join(base, 'conversations');
     const draftsDir = path.join(base, 'skills-drafts');
     const activeSkillsDir = path.join(base, 'skills');
+    const bundledSkillsDir = path.join(base, 'container-skills');
     dirs.push(base);
 
     fs.mkdirSync(conversationsDir, { recursive: true });
     fs.mkdirSync(activeSkillsDir, { recursive: true });
+    fs.mkdirSync(path.join(bundledSkillsDir, 'email-helper'), { recursive: true });
+    fs.writeFileSync(
+      path.join(bundledSkillsDir, 'email-helper', 'SKILL.md'),
+      buildDraftContent('email-helper', 'email helper skill'),
+    );
 
     const conv1 = `# Conversation\n\n**User**: 帮我起草一封给客户的邮件，说明延期并致歉\n\n**Assistant**: Done. email draft completed successfully.`;
     const conv2 = `# Conversation\n\n**User**: 写一封正式邮件给客户解释延期原因\n\n**Assistant**: completed the email reply successfully.`;
@@ -206,6 +226,7 @@ describe('skill extraction pipeline', () => {
       conversationsDir,
       draftsDir,
       activeSkillsDir,
+      bundledSkillsDir,
       minOccurrences: 3,
       minSuccessRate: 0.5,
       maxDraftsPerRun: 2,
@@ -217,6 +238,82 @@ describe('skill extraction pipeline', () => {
     expect(savedName).not.toBe('auto');
     expect(savedName).not.toBe('auto-2');
     expect(savedName).toContain('workflow');
+  });
+
+  it('detects tool mentions from dynamically discovered bundled skills', () => {
+    const base = tempDir('nanoclaw-extract-dynamic-tools-');
+    const conversationsDir = path.join(base, 'conversations');
+    const draftsDir = path.join(base, 'skills-drafts');
+    const activeSkillsDir = path.join(base, 'skills');
+    const bundledSkillsDir = path.join(base, 'container-skills');
+    dirs.push(base);
+
+    fs.mkdirSync(conversationsDir, { recursive: true });
+    fs.mkdirSync(activeSkillsDir, { recursive: true });
+    fs.mkdirSync(path.join(bundledSkillsDir, 'custom-router'), { recursive: true });
+    fs.writeFileSync(
+      path.join(bundledSkillsDir, 'custom-router', 'SKILL.md'),
+      buildDraftContent('custom-router', 'custom bundled router'),
+    );
+
+    const conv1 = `# Conversation\n\n**User**: 帮我用 custom-router 处理一下\n\n**Assistant**: done. /custom-router completed successfully.`;
+    const conv2 = `# Conversation\n\n**User**: 继续走 custom-router\n\n**Assistant**: completed custom-router successfully.`;
+    const conv3 = `# Conversation\n\n**User**: 还是按 custom-router 来\n\n**Assistant**: done with custom-router and completed.`;
+
+    fs.writeFileSync(path.join(conversationsDir, '2026-04-10-a.md'), conv1);
+    fs.writeFileSync(path.join(conversationsDir, '2026-04-11-b.md'), conv2);
+    fs.writeFileSync(path.join(conversationsDir, '2026-04-12-c.md'), conv3);
+
+    const result = extractSkillDraftsFromTrajectories({
+      conversationsDir,
+      draftsDir,
+      activeSkillsDir,
+      bundledSkillsDir,
+      minOccurrences: 3,
+      minSuccessRate: 0.5,
+      maxDraftsPerRun: 2,
+    });
+
+    expect(result.saved.length).toBeGreaterThan(0);
+    expect(result.saved[0].name).toContain('custom-router');
+  });
+
+  it('does not treat explicit failure text as success', () => {
+    const base = tempDir('nanoclaw-extract-failure-signal-');
+    const conversationsDir = path.join(base, 'conversations');
+    const draftsDir = path.join(base, 'skills-drafts');
+    const activeSkillsDir = path.join(base, 'skills');
+    const bundledSkillsDir = path.join(base, 'container-skills');
+    dirs.push(base);
+
+    fs.mkdirSync(conversationsDir, { recursive: true });
+    fs.mkdirSync(activeSkillsDir, { recursive: true });
+    fs.mkdirSync(path.join(bundledSkillsDir, 'status'), { recursive: true });
+    fs.writeFileSync(
+      path.join(bundledSkillsDir, 'status', 'SKILL.md'),
+      buildDraftContent('status', 'bundled status skill'),
+    );
+
+    const conv1 = `# Conversation\n\n**User**: 帮我检查状态\n\n**Assistant**: done, but status check failed with timeout error.`;
+    const conv2 = `# Conversation\n\n**User**: 再检查一次状态\n\n**Assistant**: completed with error, 请求超时，失败。`;
+    const conv3 = `# Conversation\n\n**User**: 继续状态检查\n\n**Assistant**: done but exception happened and task failed.`;
+
+    fs.writeFileSync(path.join(conversationsDir, '2026-04-20-a.md'), conv1);
+    fs.writeFileSync(path.join(conversationsDir, '2026-04-21-b.md'), conv2);
+    fs.writeFileSync(path.join(conversationsDir, '2026-04-22-c.md'), conv3);
+
+    const result = extractSkillDraftsFromTrajectories({
+      conversationsDir,
+      draftsDir,
+      activeSkillsDir,
+      bundledSkillsDir,
+      minOccurrences: 3,
+      minSuccessRate: 0.5,
+      maxDraftsPerRun: 2,
+    });
+
+    expect(result.candidates).toBe(0);
+    expect(result.saved.length).toBe(0);
   });
 
   it('sanitizes generated skill names', () => {
